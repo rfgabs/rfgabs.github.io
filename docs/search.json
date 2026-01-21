@@ -2,9 +2,9 @@
   {
     "objectID": "about.html",
     "href": "about.html",
-    "title": "About Me",
+    "title": "Sobre",
     "section": "",
-    "text": "Olá!\nEu sou o Gabs."
+    "text": "Eu sou o Gabs."
   },
   {
     "objectID": "posts/jan-2026/welcome/index.html",
@@ -16,8 +16,29 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "Posts",
+    "title": "Data Overdrive",
     "section": "",
-    "text": "Welcome!\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nJan 21, 2026\n\n\nGabs\n\n\n\n\n\nNo matching items"
+    "text": "Order By\n      Default\n      \n        Title\n      \n      \n        Date - Oldest\n      \n      \n        Date - Newest\n      \n      \n        Author\n      \n    \n  \n    \n      \n      \n    \n\n\n\n\n\n\n\n\n\n\nEstratégia, Bozó e Cadeias de Markov\n\n\n\nnews\n\n\n\n\n\n\n\nGabs\n\n\nJan 22, 2026\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/jan-2026/notebook-test/notebook.html",
+    "href": "posts/jan-2026/notebook-test/notebook.html",
+    "title": "Minha Primeira Análise de Dados",
+    "section": "",
+    "text": "Code\nimport plotly.express as px\n\n\nTeste.\n\n\nCode\nimport plotly.io as pio\npio.renderers.default = \"notebook\"\n\n\n\n\nCode\n\ndf = px.data.gapminder()\nfig = px.scatter(df, x=\"gdpPercap\", y=\"lifeExp\", animation_frame=\"year\", \n                 size=\"pop\", color=\"continent\", hover_name=\"country\",\n                 log_x=True, size_max=55, range_x=[100,100000], range_y=[25,90])\n\nfig"
+  },
+  {
+    "objectID": "posts/2026/1-january/welcome/index.html",
+    "href": "posts/2026/1-january/welcome/index.html",
+    "title": "Ganho Máximo",
+    "section": "",
+    "text": "Esse post inaugura a criação desse blog."
+  },
+  {
+    "objectID": "posts/2026/1-january/notebook-test/notebook.html",
+    "href": "posts/2026/1-january/notebook-test/notebook.html",
+    "title": "Minha Primeira Análise de Dados",
+    "section": "",
+    "text": "Code\nimport plotly.express as px\n\n\nTeste.\n\n\nCode\nimport plotly.io as pio\npio.renderers.default = \"notebook\"\n\n\n\n\nCode\n\ndf = px.data.gapminder()\nfig = px.scatter(df, x=\"gdpPercap\", y=\"lifeExp\", animation_frame=\"year\", \n                 size=\"pop\", color=\"continent\", hover_name=\"country\",\n                 log_x=True, size_max=55, range_x=[100,100000], range_y=[25,90])\n\nfig"
   }
 ]

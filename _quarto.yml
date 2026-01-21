@@ -2,9 +2,14 @@ project:
   type: website
   output-dir: docs
 
+execute:
+  freeze: auto
+
 website:
-  title: "Blog do Gabs"
+  title: "Data Overdrive"
+  favicon: images/logo.png
   navbar:
+    logo: images/logo.png
     right:
       - about.qmd
       - icon: github
@@ -12,9 +17,26 @@ website:
       - icon: linkedin
         href: https://linkedin.com/in/grfreitas
   search: true
+  google-analytics: "G-ZSSPNT5JJV"
+  cookie-consent: true
+
 
 format:
   html:
     theme: cosmo
     css: styles.css
     toc: true
+    code-fold: true
+    # code-tools: true
+
+comments:
+  giscus:
+    repo: grfreitas/grfreitas.github.io
+    repo-id: "R_kgDOQ-iK7Q"
+    category: General
+    category-id: "DIC_kwDOQ-iK7c4C1QG1"
+    mapping: title
+    reactions-enabled: true
+    input-position: top
+    theme: light
+  

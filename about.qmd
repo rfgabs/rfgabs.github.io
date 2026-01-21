@@ -1,5 +1,5 @@
 ---
-title: "About Me"
+title: "Sobre"
 image: profile.jpg
 about:
   template: jolla
@@ -12,7 +12,5 @@ about:
       href: https://github.com/grfreitas
 
 ---
-
-Olá!
 
 Eu sou o Gabs.
