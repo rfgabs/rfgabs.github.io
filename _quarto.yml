@@ -1,0 +1,20 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "Blog do Gabs"
+  navbar:
+    right:
+      - about.qmd
+      - icon: github
+        href: https://github.com/grfreitas
+      - icon: linkedin
+        href: https://linkedin.com/in/grfreitas
+  search: true
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true

@@ -1,0 +1,23 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About Me",
+    "section": "",
+    "text": "Olá!\nEu sou o Gabs."
+  },
+  {
+    "objectID": "posts/jan-2026/welcome/index.html",
+    "href": "posts/jan-2026/welcome/index.html",
+    "title": "Welcome!",
+    "section": "",
+    "text": "This is the first post in a Quarto blog. Welcome!\n\nSince this post doesn’t specify an explicit image, the first image in the post will be used in the listing page of posts."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Posts",
+    "section": "",
+    "text": "Welcome!\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nJan 21, 2026\n\n\nGabs\n\n\n\n\n\nNo matching items"
+  }
+]
