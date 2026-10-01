@@ -46,6 +46,10 @@ afirmação.
 
 - Front matter: `title`, `subtitle`, `author: "Gabs"`, `date`, `categories`,
   `image`, e **`draft: true`** — quem publica é o Gabs.
+- Inclua uma seção curta **"As regras que usamos"**: a fonte de referência
+  (citação + link, de `pauta.md`) e as decisões tomadas onde a fonte é omissa
+  ou há variantes. Jogo regional sem regra declarada é o primeiro comentário
+  que o post recebe.
 - Abra com o jogo e a pergunta, não com a matemática. A primeira equação
   aparece só depois de o leitor querer a resposta.
 - Equações em LaTeX; derivações longas vão em `::: {.callout-note collapse="true"}`

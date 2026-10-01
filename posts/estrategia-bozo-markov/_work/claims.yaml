@@ -1,0 +1,14 @@
+# Afirmações do post. Ver tools/claims.py para o ciclo de vida.
+pergunta: ""          # a pergunta central do post, em uma frase
+claims: []
+# Exemplo de item:
+#  - id: C1
+#    enunciado: "P(general servido) na primeira jogada"
+#    tipo: probabilidade          # probabilidade | esperanca | distribuicao | identidade | numerica
+#                                 # | politica | aprendizado | equilibrio | qualitativa
+#    valor: "1/1296"              # forma exata (sympy) — vazio para qualitativa
+#    valor_num: 0.000771605
+#    derivacao: "modelo.md#c1"    # onde está a derivação
+#    status: derivada
+#    validacao: null              # preenchido pelo validador: {metodo, n, estimativa, ic, nota}
+#    historico: []

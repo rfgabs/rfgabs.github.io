@@ -23,7 +23,11 @@ Converse com o Gabs (ou proponha, se ele só deu o tema) e escreva
 ```markdown
 # <título provisório>
 ## Pergunta central        — uma frase, respondível com números
-## Regras do jogo          — completas, numeradas, sem ambiguidade; variantes regionais declaradas
+## Regras do jogo
+### Fonte de referência    — citação completa + link (e link de arquivo, ex.: web.archive.org) + por que esta fonte
+### Regras                 — numeradas, como a fonte define; lacunas da fonte marcadas [D1], [D2]…
+### Variantes conhecidas   — tabela: ponto · regra da fonte · variante · onde aparece (com links)
+## Pontos que a fonte deixa em aberto — uma pergunta por [Dn], com o impacto no modelo
 ## Escopo                  — o que entra e o que fica de fora
 ## Resultados esperados    — 3 a 6 perguntas menores que compõem a resposta
 ## Gráficos desejados      — o que o leitor deveria *ver*
@@ -33,9 +37,16 @@ Converse com o Gabs (ou proponha, se ele só deu o tema) e escreva
 Crie também o `.qmd` com `draft: true` se ainda não existir, e
 `uv run python tools/claims.py init posts/<slug>`.
 
-**Pare e peça aprovação da pauta.** As regras do jogo são o ponto onde mais
-dá errado — confirme variantes (ex.: no Bozó, quantas rerrolagens, se a
-"ordem" é servida) explicitamente.
+**Regras vêm de fonte, não de memória.** Pesquise (WebSearch/WebFetch) e
+compare várias fontes; prefira, nesta ordem: regulamento oficial/federação,
+publicação acadêmica, manual do fabricante, enciclopédia, blogs. Se o link
+original estiver fora do ar, use o Internet Archive. Jogos regionais (Bozó,
+truco, etc.) quase sempre têm variantes — mapeie-as na tabela.
+
+**Pare e peça aprovação da pauta.** Pergunte cada [Dn] explicitamente
+(AskUserQuestion), recomendando a opção da fonte quando ela existir. Registre
+as respostas em `## Decisões` com data e origem ("Gabs" ou "padrão
+provisório"). O post final deve citar a fonte e as decisões.
 
 ### 2. Exploração → agente `matematico` (modo exploração) → ✋ escolha do Gabs
 
