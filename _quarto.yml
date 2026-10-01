@@ -1,6 +1,8 @@
 project:
   type: website
   output-dir: docs
+  # blocos {python} rodam a partir da raiz: `sys.path.insert(0, "tools")` funciona em qualquer post
+  execute-dir: project
 
 execute:
   freeze: auto

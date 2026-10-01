@@ -15,7 +15,14 @@ dependencies = [
     "scipy",
     "pandas",
     "matplotlib",
+    # registro de afirmações e testes
+    "pyyaml",
+    "pytest",
 ]
 
 [tool.uv]
 package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tools"]
