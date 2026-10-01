@@ -15,10 +15,18 @@ dependencies = [
     "scipy",
     "pandas",
     "matplotlib",
+    # estatística, grafos e teoria dos jogos
+    "statsmodels",
+    "networkx",
+    "nashpy",
     # registro de afirmações e testes
     "pyyaml",
     "pytest",
 ]
+
+[project.optional-dependencies]
+# deep RL — pesado (torch); só quando RL tabular não couber: uv sync --extra rl
+rl = ["gymnasium", "stable-baselines3"]
 
 [tool.uv]
 package = false

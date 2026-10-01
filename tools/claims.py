@@ -33,7 +33,8 @@ claims: []
 # Exemplo de item:
 #  - id: C1
 #    enunciado: "P(general servido) na primeira jogada"
-#    tipo: probabilidade          # probabilidade | esperanca | distribuicao | identidade | qualitativa
+#    tipo: probabilidade          # probabilidade | esperanca | distribuicao | identidade | numerica
+#                                 # | politica | aprendizado | equilibrio | qualitativa
 #    valor: "1/1296"              # forma exata (sympy) — vazio para qualitativa
 #    valor_num: 0.000771605
 #    derivacao: "modelo.md#c1"    # onde está a derivação

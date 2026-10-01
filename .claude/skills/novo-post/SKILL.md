@@ -37,13 +37,30 @@ Crie também o `.qmd` com `draft: true` se ainda não existir, e
 dá errado — confirme variantes (ex.: no Bozó, quantas rerrolagens, se a
 "ordem" é servida) explicitamente.
 
-### 2. Modelagem → agente `matematico`
+### 2. Exploração → agente `matematico` (modo exploração) → ✋ escolha do Gabs
 
-Chame o subagente `matematico` com o caminho do post. Ao voltar, rode
-`claims.py status` e leia as hipóteses que ele assumiu.
+Chame o subagente `matematico` em **modo exploração** com o caminho do post.
+Ele escreve `_work/abordagens.md` com ≥ 3 abordagens em níveis diferentes
+(ver `tools/CATALOGO.md`).
+
+Apresente ao Gabs uma tabela-resumo — nível, nome, o que o leitor ganha,
+custo — e as combinações sugeridas. **Não escolha por ele.** Ele pode escolher
+uma, combinar várias, pedir variações ou pedir uma nova rodada de exploração.
+Registre a escolha em `pauta.md › Decisões`.
+
+Se a escolha exigir biblioteca nova, adicione-a ao `pyproject.toml`
+(`uv add …`); para deep RL, `uv sync --extra rl`.
+
+### 2b. Execução → agente `matematico` (modo execução)
+
+Chame o `matematico` em **modo execução**, citando a decisão. Ao voltar, rode
+`claims.py status` e leia as hipóteses assumidas.
 
 **✋ Aprovação do Gabs** se houver hipóteses novas ou simplificações que mudam
 a resposta. Caso contrário, siga.
+
+Se o matemático propuser mover uma função para `tools/`, faça isso com um
+teste em `tests/` e rode `uv run pytest`.
 
 ### 3. Validação → agente `validador`
 

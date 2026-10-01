@@ -10,8 +10,8 @@ subagentes (`.claude/agents/`):
 
 | Agente | Faz | Ferramentas |
 |---|---|---|
-| `matematico` | modelo formal, derivações exatas, `claims.yaml` | `tools/mathbox.py` (SymPy) |
-| `validador` | confere cada afirmação por simulação, **sem ler a derivação** | `tools/montecarlo.py` (numpy/scipy) |
+| `matematico` | **explora** ≥ 3 abordagens em níveis diferentes (N1 probabilidade → N5 RL); o Gabs escolhe; depois **executa** a escolhida | `tools/CATALOGO.md`: `mathbox` (SymPy), `mdp` (DP), `rl` (Q-learning), `nashpy`, `statsmodels`, `networkx` |
+| `validador` | confere cada afirmação de forma independente, **sem ler a derivação** | `tools/montecarlo.py` (numpy/scipy), `mdp`/`rl` com modelo próprio |
 | `escritor` | escreve o `index.qmd` no tom do guia | `.claude/estilo/guia-de-estilo.md` |
 
 Depois que o Gabs edita o post, **`/aprender-estilo <slug>`** atualiza o
@@ -24,7 +24,9 @@ posts/<slug>/
   index.qmd                 ← o post (draft: true até o Gabs publicar)
   _work/                    ← ignorado pelo Quarto (prefixo _)
     pauta.md                ← supervisor + decisões do Gabs
-    modelo.md, derivacao.py ← matemático
+    abordagens.md           ← matemático (exploração): opções para o Gabs escolher
+    modelo.md, derivacao.py ← matemático (execução)
+    resultados/             ← saídas caras (treinos de RL, buscas) + como regerá-las
     claims.yaml             ← contrato: afirmações e status
     validacao.py, figuras.py← validador
     rascunho-escritor.qmd   ← cópia do que o escritor entregou

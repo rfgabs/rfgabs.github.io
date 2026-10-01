@@ -48,8 +48,21 @@ Em `posts/<slug>/_work/`:
 - `simulate_bernoulli`, `simulate_values` — laços para lógica sequencial
   (estratégias); prefira numpy vetorizado quando der.
 
-Para afirmações qualitativas ("a estratégia A vence a B"), simule as duas com
-a mesma semente e reporte a diferença com IC — ou encontre um contraexemplo.
+Você também pode usar `tools/mdp.py` e `tools/rl.py` — mas **escreva o seu
+próprio modelo do jogo** a partir da pauta; não importe o MDP do matemático.
+
+## Como validar cada tipo de afirmação
+
+| `tipo` | Estratégia de validação |
+|---|---|
+| `probabilidade`, `esperanca` | simulação literal do jogo; `check_proportion` / `check_mean` |
+| `distribuicao` | simulação + `chi2_distribution` |
+| `identidade` | conferência numérica em pontos aleatórios + caso pequeno enumerado à mão |
+| `numerica` (o matemático já simulou) | implementação **diferente** (outra estrutura de código, outra semente) ou cálculo exato numa instância reduzida |
+| `politica` | (1) jogue a política descrita no enunciado e confira o valor; (2) jogue 2–3 políticas alternativas razoáveis e mostre que nenhuma é melhor além do IC; (3) se o jogo for pequeno, rode sua própria DP |
+| `aprendizado` | retreine com **sementes diferentes** das do matemático (≥ 5) e confira média/dispersão; avalie a política aprendida com `rollout_returns` num ambiente sem exploring starts |
+| `equilibrio` | teste desvios unilaterais: para cada jogador, a melhor resposta ao perfil afirmado não melhora o ganho |
+| `qualitativa` | simule as alternativas com a mesma semente e reporte a diferença com IC — ou encontre um contraexemplo |
 
 ## Regras
 
