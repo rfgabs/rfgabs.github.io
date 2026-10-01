@@ -1,6 +1,6 @@
 # Estratégia, Bozó e Cadeias de Markov
 
-> Estado: **regras fechadas em 2026-10-01** (ver Decisões). D3 e D5 são padrões provisórios — o Gabs pode trocar.
+> Estado: **pauta aprovada pelo Gabs em 2026-10-01**. Próxima etapa: exploração de abordagens.
 
 ## Pergunta central
 
@@ -117,15 +117,17 @@ perfeita para qualquer situação — e comparar com o que fazemos na mesa.
 
 ## Decisões
 
+**2026-10-01 — pauta aprovada** (Bozó solo, maximizar pontuação esperada; contra adversários fica para outro post).
+
 **2026-10-01 — regras do modelo** (fonte: Piano & Toillier, 2010, com os pontos abaixo):
 
 | # | Decisão | Origem |
 |---|---|---|
 | D1 | General de boca vale **55 pontos** (sem vitória imediata) | Gabs, = fonte |
 | D2 | **BAIXO pedido antes de ver** — no modelo, não altera nenhuma probabilidade; entra no post como curiosidade (e a variante "depois de ver" pode aparecer como comparação) | Gabs, = fonte |
-| D3 | Dado separado **pode voltar ao copo** no lançamento seguinte (o jogador escolhe livremente quais dados relançar a cada vez) | padrão provisório (supervisor) |
+| D3 | Dado separado **pode voltar ao copo** no lançamento seguinte (o jogador escolhe livremente quais dados relançar a cada vez) | Gabs (a fonte é ambígua; = Yahtzee) |
 | D4 | **Cinco iguais não valem** como Quadrada nem como Fú (leitura literal: "quatro iguais mais um diferente", "duas iguais mais três iguais") | Gabs, = fonte |
-| D5 | Seguida aceita **1-2-3-4-5 e 2-3-4-5-6** | padrão provisório (Wikipédia pt/en) |
+| D5 | Seguida aceita **1-2-3-4-5 e 2-3-4-5-6** | Wikipédia pt/en; aceito pelo Gabs com a pauta |
 | D6 | **Riscar é livre:** qualquer casa livre pode receber zero a qualquer momento, mesmo havendo opção que pontue | Gabs (= V5 "torar"; a fonte só prevê riscar sem opção) |
 
 Consequência de D4+D6: com cinco iguais, as opções são General, a casa de
