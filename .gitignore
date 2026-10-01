@@ -10,3 +10,6 @@ __pycache__/
 
 # área de trabalho dos agentes (rascunhos de derivação/validação)
 posts/**/_work/scratch/
+
+# worktrees do Claude Code
+.claude/worktrees/

@@ -7,13 +7,14 @@ execute:
 
 website:
   title: "Data Overdrive"
+  site-url: https://rfgabs.github.io
   favicon: images/logo.png
   navbar:
     logo: images/logo.png
     right:
       - about.qmd
       - icon: github
-        href: https://github.com/grfreitas
+        href: https://github.com/rfgabs
       - icon: linkedin
         href: https://linkedin.com/in/grfreitas
   search: true
@@ -31,7 +32,7 @@ format:
 
 comments:
   giscus:
-    repo: grfreitas/grfreitas.github.io
+    repo: rfgabs/rfgabs.github.io
     repo-id: "R_kgDOQ-iK7Q"
     category: General
     category-id: "DIC_kwDOQ-iK7c4C1QG1"

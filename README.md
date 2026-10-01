@@ -1,4 +1,4 @@
-# Data Overdrive — grfreitas.github.io
+# Data Overdrive — rfgabs.github.io
 
 Blog de ciência e tecnologia (Quarto), publicado pelo GitHub Pages a partir de `docs/`.
 
