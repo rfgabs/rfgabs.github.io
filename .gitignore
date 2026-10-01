@@ -1,2 +1,12 @@
 /.quarto/
 **/*.quarto_ipynb
+
+# saída de render local (o site publicado vive em docs/)
+/_site/
+
+# ambiente Python
+.venv/
+__pycache__/
+
+# área de trabalho dos agentes (rascunhos de derivação/validação)
+posts/**/_work/scratch/

@@ -1,0 +1,21 @@
+[project]
+name = "data-overdrive"
+version = "0.1.0"
+description = "Blog Data Overdrive (Quarto) — ambiente de cálculo e renderização"
+requires-python = ">=3.12"
+dependencies = [
+    # renderização
+    "quarto-cli",
+    "jupyter",
+    "ipykernel",
+    # matemática simbólica
+    "sympy",
+    # computação e estatística
+    "numpy",
+    "scipy",
+    "pandas",
+    "matplotlib",
+]
+
+[tool.uv]
+package = false

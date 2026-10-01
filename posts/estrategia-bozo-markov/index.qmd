@@ -3,6 +3,7 @@ title: "Estratégia, Bozó e Cadeias de Markov"
 author: "Gabs"
 date: "2026-01-22"
 image: thumbnail.png
-categories: [news]
+categories: [jogos, probabilidade, markov]
+draft: true
 ---
 
