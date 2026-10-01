@@ -1,6 +1,6 @@
 # Estratégia, Bozó e Cadeias de Markov
 
-> Estado: **pauta aprovada pelo Gabs em 2026-10-01**. Próxima etapa: exploração de abordagens.
+> Estado: **abordagem escolhida em 2026-10-01** (A + B + C + D1). Próxima etapa: execução.
 
 ## Pergunta central
 
@@ -132,3 +132,12 @@ perfeita para qualquer situação — e comparar com o que fazemos na mesa.
 
 Consequência de D4+D6: com cinco iguais, as opções são General, a casa de
 número correspondente, ou riscar alguma casa.
+
+**2026-10-01 — abordagem e escopo de cálculo** (ver `abordagens.md`):
+
+| # | Decisão | Origem |
+|---|---|---|
+| E1 | Post segue **A + B + C + D1**: Markov de uma rodada (A), jogador guloso simulado (B), MDP completo por DP (C), RL tabular num Bozó reduzido comparado com a DP (D1) | Gabs |
+| E2 | O "jeito intuitivo" é **só a heurística gulosa** (sem míope nem variantes) | Gabs |
+| E3 | **BAIXO fora das contas.** Só pode ser pedido antes de ver; não entra no modelo nem em comparações (a variante "depois de ver" não é calculada) | Gabs |
+| E4 | Valor ótimo do jogo completo pode ser **float64 com tolerância 1e-9** declarada; frações exatas nas pontes pequenas | Gabs |

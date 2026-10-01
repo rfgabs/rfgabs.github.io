@@ -1,14 +1,442 @@
-# Afirmações do post. Ver tools/claims.py para o ciclo de vida.
-pergunta: ""          # a pergunta central do post, em uma frase
-claims: []
-# Exemplo de item:
-#  - id: C1
-#    enunciado: "P(general servido) na primeira jogada"
-#    tipo: probabilidade          # probabilidade | esperanca | distribuicao | identidade | numerica
-#                                 # | politica | aprendizado | equilibrio | qualitativa
-#    valor: "1/1296"              # forma exata (sympy) — vazio para qualitativa
-#    valor_num: 0.000771605
-#    derivacao: "modelo.md#c1"    # onde está a derivação
-#    status: derivada
-#    validacao: null              # preenchido pelo validador: {metodo, n, estimativa, ic, nota}
-#    historico: []
+pergunta: Qual é a estratégia ótima para o Bozó solo (MDP de um jogador), quanto ela vale em média e quanto
+  se perde jogando de forma gulosa?
+hipoteses:
+  H1: 'Objetivo: maximizar a pontuação total esperada do Bozó solo de 10 rodadas (10 casas), regras da
+    pauta com D1–D6.'
+  H2: 'Boca: +5 só para Fú, Seguida, Quadrada e General, e só se a casa for marcada logo após o 1º lançamento
+    da rodada (General de boca = 55).'
+  H3: Parar = marcar uma casa. Guardar os 5 dados e 'relançar zero' não é ação (seria dominada).
+  H4: 'Após o 1º e o 2º lançamentos o jogador guarda qualquer submulticonjunto de 0 a 4 dados da mão atual
+    e relança os demais (D3: dado guardado pode voltar ao copo).'
+  H5: 'Qualquer casa livre pode ser marcada a qualquer momento (D6); combinação inválida ou casa de número
+    sem a face vale 0. Fú = exatamente 3+2 iguais; Quadrada = exatamente 4+1 (D4: cinco iguais não valem);
+    Seguida = 12345 ou 23456 (D5). Casa de número k vale k vezes o nº de dados com face k.'
+  H6: 'Desempate da política ótima (empates exatos): marcar antes de relançar; entre casas, a de menor
+    índice (Ás<Duque<Terno<Quadra<Quina<Sena<Fú<Seguida<Quadrada<General); entre guardas, mais dados,
+    depois maior soma, depois maior tupla decrescente. O desempate não altera valor, distribuição final
+    nem probabilidades de completar casas.'
+  H7: 'BAIXO fora das contas (E3): pedido às cegas não altera nenhuma probabilidade.'
+gulosa:
+  G1: Após cada lançamento r, calcula a pontuação imediata de cada casa livre (com +5 de boca se r=1 e
+    combinação válida).
+  G2: 'Casa escolhida = a de maior pontuação imediata; empate -> menor índice (logo, se tudo dá 0, risca
+    a casa livre de menor índice: Ás primeiro, General por último).'
+  G3: 'Para e marca a casa escolhida se: r=3; ou ela é combinação (Fú/Seguida/Quadrada/General) com pontos
+    > 0; ou a mão tem cinco iguais.'
+  G4: Senão guarda todos os dados da face mais frequente (empate -> a face maior; se todos diferem, guarda
+    só o maior dado) e relança o resto.
+claims:
+- id: C1
+  enunciado: Probabilidade de sair General (cinco dados iguais) no 1º lançamento de 5 dados justos de
+    6 faces (General 'de boca').
+  tipo: probabilidade
+  valor: 1/1296
+  valor_num: 0.000771604938271605
+  derivacao: modelo.md#c1
+  status: derivada
+  validacao: null
+  historico: []
+- id: C2
+  enunciado: Probabilidade de sair Quadrada (exatamente quatro iguais + um diferente, D4) no 1º lançamento
+    de 5 dados.
+  tipo: probabilidade
+  valor: 25/1296
+  valor_num: 0.0192901234567901
+  derivacao: modelo.md#c2
+  status: derivada
+  validacao: null
+  historico: []
+- id: C3
+  enunciado: Probabilidade de sair Fú (exatamente três iguais + dois iguais de outra face, D4) no 1º lançamento
+    de 5 dados.
+  tipo: probabilidade
+  valor: 25/648
+  valor_num: 0.0385802469135802
+  derivacao: modelo.md#c3
+  status: derivada
+  validacao: null
+  historico: []
+- id: C4
+  enunciado: Probabilidade de sair Seguida (1-2-3-4-5 ou 2-3-4-5-6, D5) no 1º lançamento de 5 dados.
+  tipo: probabilidade
+  valor: 5/162
+  valor_num: 0.0308641975308642
+  derivacao: modelo.md#c4
+  status: derivada
+  validacao: null
+  historico: []
+- id: C5
+  enunciado: Máxima probabilidade, sobre todas as estratégias de guarda (H4), de terminar uma rodada de
+    até 3 lançamentos com General (parando ao conseguir). Igual à da cadeia de Markov com estados 'nº
+    máximo de dados iguais' 1..5 e regra 'guarda os dados da face mais frequente (um só se todos diferem)
+    e relança o resto', calculada como (pi0 P^2)[5], com pi0 = distribuição do máximo de iguais em 5 dados.
+  tipo: probabilidade
+  valor: 347897/7558272
+  valor_num: 0.046028642525699
+  derivacao: modelo.md#c5
+  status: derivada
+  validacao: null
+  historico: []
+- id: C6
+  enunciado: Máxima probabilidade de terminar uma rodada de até 3 lançamentos com Quadrada (exatamente
+    4+1, D4; cinco iguais NÃO serve), guardas livres (H4), parando ao conseguir.
+  tipo: probabilidade
+  valor: 1042585/3779136
+  valor_num: 0.275879195668005
+  derivacao: modelo.md#c6
+  status: derivada
+  validacao: null
+  historico: []
+- id: C7
+  enunciado: Máxima probabilidade de terminar uma rodada de até 3 lançamentos com Fú (exatamente 3+2,
+    D4), guardas livres (H4), parando ao conseguir.
+  tipo: probabilidade
+  valor: 5485535/15116544
+  valor_num: 0.362882878520381
+  derivacao: modelo.md#c7
+  status: derivada
+  validacao: null
+  historico: []
+- id: C8
+  enunciado: Máxima probabilidade de terminar uma rodada de até 3 lançamentos com Seguida (12345 ou 23456),
+    guardas livres (H4), parando ao conseguir.
+  tipo: probabilidade
+  valor: 319695199/1224440064
+  valor_num: 0.261095016734114
+  derivacao: modelo.md#c8
+  status: derivada
+  validacao: null
+  historico: []
+- id: C9
+  enunciado: Sem limite de lançamentos, jogando para o General com a regra 'guarda os dados da face mais
+    frequente (um só se todos diferem) e relança o resto', o número esperado de lançamentos (contando
+    o 1º) até obter cinco iguais. Cadeia absorvente 5 estados, (I-Q)^-1.
+  tipo: esperanca
+  valor: 191283/17248
+  valor_num: 11.090155380334
+  derivacao: modelo.md#c9
+  status: derivada
+  validacao: null
+  historico: []
+- id: C10
+  enunciado: 'Com só a casa de número k livre (uma rodada, até 3 lançamentos, guardas livres H4), a pontuação
+    esperada máxima é 455k/216 = 5k(1-(5/6)^3): Ás 455/216, Duque 455/108, Terno 455/72, Quadra 455/54,
+    Quina 2275/216, Sena 455/36. (valor = caso k=1.)'
+  tipo: identidade
+  valor: 455/216
+  valor_num: 2.10648148148148
+  derivacao: modelo.md#c10
+  status: derivada
+  validacao: null
+  historico: []
+- id: C11
+  enunciado: Pontuação esperada máxima de uma rodada (até 3 lançamentos, H2–H5) em que a única casa livre
+    é o Fú (20; 25 de boca). Igual a 20*C7 + 5*C3.
+  tipo: esperanca
+  valor: 28156675/3779136
+  valor_num: 7.45055880497553
+  derivacao: modelo.md#c11
+  status: derivada
+  validacao: null
+  historico: []
+- id: C12
+  enunciado: Pontuação esperada máxima de uma rodada em que a única casa livre é a Seguida (30; 35 de
+    boca). Igual a 30*C8 + 5*C4.
+  tipo: esperanca
+  valor: 1629968795/204073344
+  valor_num: 7.98717148967775
+  derivacao: modelo.md#c12
+  status: derivada
+  validacao: null
+  historico: []
+- id: C13
+  enunciado: Pontuação esperada máxima de uma rodada em que a única casa livre é a Quadrada (40; 45 de
+    boca; exatamente 4+1). Igual a 40*C6 + 5*C2.
+  tipo: esperanca
+  valor: 10516975/944784
+  valor_num: 11.1316184440041
+  derivacao: modelo.md#c13
+  status: derivada
+  validacao: null
+  historico: []
+- id: C14
+  enunciado: 'Pontuação esperada máxima de uma rodada em que a única casa livre é o General (50; 55 de
+    boca). Igual a 50*C5 + 5*C1. Ponte: a programação dinâmica do jogo completo (C17), avaliada nas cartelas
+    com uma só casa livre, reproduz exatamente C10–C14.'
+  tipo: esperanca
+  valor: 8712005/3779136
+  valor_num: 2.30529015097631
+  derivacao: modelo.md#c14
+  status: derivada
+  validacao: null
+  historico: []
+- id: C15
+  enunciado: 'Soma, sobre as 10 casas, da pontuação esperada máxima de cada casa jogada sozinha numa rodada
+    (C10 com k=1..6 + C11 + C12 + C13 + C14). Comparar com C17: menos da metade.'
+  tipo: esperanca
+  valor: 14919955235/204073344
+  valor_num: 73.1107500007448
+  derivacao: modelo.md#c15
+  status: derivada
+  validacao: null
+  historico: []
+- id: C16
+  enunciado: O MDP do Bozó solo tem 1023 x 3 x 252 = 773388 estados de decisão (conjunto não vazio de
+    casas livres, nº de lançamentos já feitos 1–3, mão como multiconjunto de 5 dados — 252 multiconjuntos).
+    Contagem exata.
+  tipo: numerica
+  valor: '773388'
+  valor_num: 773388.0
+  derivacao: modelo.md#c16
+  status: derivada
+  validacao: null
+  historico: []
+- id: C17
+  enunciado: Pontuação total esperada do Bozó solo (10 rodadas, H1–H5, H7) sob a política ótima, partindo
+    da cartela vazia. Valor racional exato (denominador divide 6^150). Monte Carlo de 10^6 partidas da
+    política ótima tabelada dá 146,685, IC99% [146,604; 146,766]. Tolerância 1e-9 (valor exato; o decimal
+    é arredondamento).
+  tipo: esperanca
+  valor: 1940206672837438231624158172110493375625140993992833369586738812611877835041823526946464552066599035/13223117882420168818573784358882566277177840230594351818945892799279456119139300013505658325303296
+  valor_num: 146.728380559694
+  derivacao: modelo.md#c17
+  status: derivada
+  validacao: null
+  historico: []
+- id: C18
+  enunciado: 'Mesmo jogo de C17, mas sem o bônus de boca (+5 removido; General vale sempre 50 etc.): pontuação
+    esperada ótima. Tolerância 1e-9 (valor exato; o decimal é arredondamento).'
+  tipo: esperanca
+  valor: 568501073931632449848635757539835522375953384140517471459263602579120120838187466267888639417762965/3917960854050420390688528698928167785830471179435363501909894162749468479744977781779454318608384
+  valor_num: 145.101264435532
+  derivacao: modelo.md#c18
+  status: derivada
+  validacao: null
+  historico: []
+- id: C19
+  enunciado: 'Valor do bônus de boca sob jogo ótimo: C17 − C18 (pontos por partida). Tolerância 1e-9 (valor
+    exato; o decimal é arredondamento).'
+  tipo: esperanca
+  valor: 172124386545429707080099923308387900850386580148695227293793231258779417703526626338723152253192225/105784943059361350548590274871060530217422721844754814551567142394235648953114400108045266602426368
+  valor_num: 1.62711612416185
+  derivacao: modelo.md#c19
+  status: derivada
+  validacao: null
+  historico: []
+- id: C20
+  enunciado: 'Distribuição da pontuação final do Bozó solo sob a política ótima (H6): média 146,7284,
+    desvio-padrão 31,5055 (valor), quantil 5% = 98, mediana = 146, quantil 95% = 202, moda = 147 (quantil
+    q = menor x com P(X<=x) >= q). Tolerância: dp ±1e-6; quantis exatos.'
+  tipo: distribuicao
+  valor: '31.5055287427'
+  valor_num: 31.5055287426837
+  derivacao: modelo.md#c20
+  status: derivada
+  validacao: null
+  historico: []
+- id: C21
+  enunciado: 'Sob a política ótima (H6), probabilidade de cada casa terminar o jogo com pontos > 0 (não
+    riscada): Ás 0,8460; Duque 0,9743; Terno 0,9833; Quadra 0,9932; Quina 0,9931; Sena 0,9953; Fú 0,9196;
+    Seguida 0,7649; Quadrada 0,9112; General 0,2750. valor = General. Tolerância 1e-6 em cada.'
+  tipo: distribuicao
+  valor: '0.274992703274'
+  valor_num: 0.274992703274235
+  derivacao: modelo.md#c21
+  status: derivada
+  validacao: null
+  historico: []
+- id: C22
+  enunciado: Sob a política ótima (H6), probabilidade de o General ser a última casa preenchida (10ª rodada)
+    = 0,2348 (valor); Seguida 0,2364; Quadrada 0,1196. Tolerância 1e-6.
+  tipo: probabilidade
+  valor: '0.23479222647'
+  valor_num: 0.234792226469918
+  derivacao: modelo.md#c22
+  status: derivada
+  validacao: null
+  historico: []
+- id: C23
+  enunciado: 'Cartela vazia (todas as 10 casas livres), 1º lançamento {5,6,6,6,6}: a ação ótima é guardar
+    6666 e relançar um dado (valor esperado do resto do jogo 160,559383), e não marcar Quadrada de boca
+    (45 + valor ótimo da cartela sem a Quadrada = 156,312679). valor = vantagem. Também: na cartela vazia,
+    nenhuma mão quadra+avulso é marcada no 1º nem no 2º lançamento sob a política ótima. Tolerância 1e-9
+    (valor exato; o decimal é arredondamento).'
+  tipo: politica
+  valor: 100299120437466862297323119198376899283040414015635058820927227662639860087894625216374657195/23618108929219837424578804367574313909568330315847822036011611224135974149697252253203693568
+  valor_num: 4.24670411750785
+  derivacao: modelo.md#c23
+  status: derivada
+  validacao: null
+  historico: []
+- id: C24
+  enunciado: 'Cartela vazia, 2º lançamento {1,1,4,4,4} (Fú sem boca): a ação ótima é guardar 444 e relançar
+    dois dados (146,768173), e não marcar Fú = 20 (146,684218); valor = vantagem. Já com {1,1,1,4,4} o
+    ótimo marca Fú, com vantagem 1,309725 sobre guardar 111. Tolerância 1e-9 (valor exato; o decimal é
+    arredondamento).'
+  tipo: politica
+  valor: 3965705385657858973266472766607878544346385118986588185551185955865649932174196286307243105/47236217858439674849157608735148627819136660631695644072023222448271948299394504506407387136
+  valor_num: 0.0839547611017995
+  derivacao: modelo.md#c24
+  status: derivada
+  validacao: null
+  historico: []
+- id: C25
+  enunciado: 'Cartela vazia, 3º lançamento {1,2,3,4,6}: a ação ótima é marcar Ás (1 ponto; valor total
+    138,267962), e não Sena (6 pontos; 131,675316); valor = vantagem. Tolerância 1e-9 (valor exato; o
+    decimal é arredondamento).'
+  tipo: politica
+  valor: 20023900332473404117931227977821231041847033422956022382398469046079174154356820719905715/3037308247070452343695833895006984813473293507696479171297789509276745646823206308282368
+  valor_num: 6.59264674627176
+  derivacao: modelo.md#c25
+  status: derivada
+  validacao: null
+  historico: []
+- id: C26
+  enunciado: 'Cartela vazia, 1º lançamento {2,2,3,4,5}: a ação ótima é guardar 2345 e relançar um dado
+    (147,452503), e não guardar o par 22 (144,634927); valor = vantagem. Tolerância 1e-9 (valor exato;
+    o decimal é arredondamento).'
+  tipo: politica
+  valor: 3194199044182851495714455739583002584586002143980863919219006328591252181116884360921850582111/1133669228602552196379782609643567067659279855160695457728557338758526759185468108153777291264
+  valor_num: 2.81757585333799
+  derivacao: modelo.md#c26
+  status: derivada
+  validacao: null
+  historico: []
+- id: C27
+  enunciado: 'Mapa de decisão, cartela vazia, 1º lançamento: a política ótima marca imediatamente exatamente
+    nas 38 mãos com General, Fú ou Seguida (de boca) — nunca com Quadrada de boca. valor = probabilidade
+    de parar no 1º lançamento. Além disso: com dois pares guarda só o par mais alto (todas as 60 mãos);
+    com 12346/12356/12456/13456 guarda 234/235/245/345.'
+  tipo: probabilidade
+  valor: 91/1296
+  valor_num: 0.0702160493827161
+  derivacao: modelo.md#c27
+  status: derivada
+  validacao: null
+  historico: []
+- id: C28
+  enunciado: 'Cartela vazia, 1º lançamento: probabilidade (sobre o lançamento) de a política ótima (H6)
+    e a heurística gulosa (G1–G4) tomarem a mesma ação.'
+  tipo: probabilidade
+  valor: 1151/1296
+  valor_num: 0.888117283950617
+  derivacao: modelo.md#c28
+  status: derivada
+  validacao: null
+  historico: []
+- id: C29
+  enunciado: Pontuação total esperada do Bozó solo sob a heurística gulosa G1–G4, partindo da cartela
+    vazia (valor exato por avaliação da política fixa). Tolerância 1e-9 (valor exato; o decimal é arredondamento).
+  tipo: esperanca
+  valor: 60212501656159179811945335765621140567731839334045995630326200420269313015/499005369933318022510547289022246534068160676911130653716867693158596608
+  valor_num: 120.66503746083
+  derivacao: modelo.md#c29
+  status: derivada
+  validacao: null
+  historico: []
+- id: C30
+  enunciado: 'Custo da heurística gulosa: C17 − C29 pontos por partida. Tolerância 1e-9 (valor exato;
+    o decimal é arredondamento).'
+  tipo: esperanca
+  valor: 344638658206236743494768432969506839119235032165808247973148086673825193075053409764592111271135355/13223117882420168818573784358882566277177840230594351818945892799279456119139300013505658325303296
+  valor_num: 26.0633430988637
+  derivacao: modelo.md#c30
+  status: derivada
+  validacao: null
+  historico: []
+- id: C31
+  enunciado: 'Monte Carlo vetorizado da gulosa G1–G4: n = 10^6 partidas, semente numpy default_rng(20261001):
+    média 120.633, IC99% [120.549; 120.716], desvio-padrão 32.39. O IC contém o valor exato C29. (Afirmação
+    estatística: outra simulação deve ter média dentro de ~±0,1 de C29.)'
+  tipo: numerica
+  valor: '120.632823'
+  valor_num: 120.632823
+  derivacao: modelo.md#c31
+  status: derivada
+  validacao: null
+  historico: []
+- id: C32
+  enunciado: 'Distribuição da pontuação final sob a gulosa G1–G4: média 120,6650, desvio-padrão 32,3876
+    (valor), quantil 5% = 72, mediana = 114, quantil 95% = 180, moda = 100. Tolerância: dp ±1e-6; quantis
+    exatos.'
+  tipo: distribuicao
+  valor: '32.3875761005'
+  valor_num: 32.3875761005077
+  derivacao: modelo.md#c32
+  status: derivada
+  validacao: null
+  historico: []
+- id: C33
+  enunciado: 'Sob a gulosa G1–G4, probabilidade de cada casa terminar com pontos > 0: Ás 0,5722; Duque
+    0,7851; Terno 0,8712; Quadra 0,9204; Quina 0,9511; Sena 0,9742; Fú 0,8584; Seguida 0,2587; Quadrada
+    0,9282; General 0,2983. valor = Seguida (contra 0,7649 sob a ótima). Tolerância 1e-6.'
+  tipo: distribuicao
+  valor: '0.258699511807'
+  valor_num: 0.258699511806523
+  derivacao: modelo.md#c33
+  status: derivada
+  validacao: null
+  historico: []
+- id: C34
+  enunciado: Numa partida sob a política ótima e outra, independente, sob a gulosa G1–G4, probabilidade
+    de a ótima fazer estritamente mais pontos (valor); empate 0,00784. Tolerância 1e-6.
+  tipo: probabilidade
+  valor: '0.716650182155'
+  valor_num: 0.716650182155041
+  derivacao: modelo.md#c34
+  status: derivada
+  validacao: null
+  historico: []
+- id: C35
+  enunciado: 'Política ótima não única: número de situações de decisão (casas livres, lançamento 1–3,
+    mão) em que duas ou mais ações (marcar alguma casa ou guardar algum submulticonjunto de 0–4 dados)
+    empatam exatamente no valor ótimo. Com o desempate oposto ao de H6 (relançar antes de marcar, casa
+    de maior índice, guarda menos preferida) o valor ótimo é idêntico e a distribuição final e as probabilidades
+    de C21 mudam menos de 1e-15.'
+  tipo: numerica
+  valor: '9441'
+  valor_num: 9441.0
+  derivacao: modelo.md#c35
+  status: derivada
+  validacao: null
+  historico: []
+- id: C36
+  enunciado: 'Bozó reduzido com só 3 casas — Sena, Seguida e General (3 rodadas, mesmas regras H2–H5):
+    pontuação esperada ótima (valor, exato). A gulosa G1–G4 nesse jogo vale 15.164236. O jogo tem 5292
+    estados de decisão e 66696 pares (estado, ação). Tolerância 1e-9 (valor exato; o decimal é arredondamento).'
+  tipo: esperanca
+  valor: 10148883530576667514404651605915/313300653254150017214972952576
+  valor_num: 32.3934323952522
+  derivacao: modelo.md#c36
+  status: derivada
+  validacao: null
+  historico: []
+- id: C37
+  enunciado: 'No Bozó reduzido de C36, Q-learning tabular (tools/rl.py q_learning; passo 1/N(s,a)^0.8;
+    Q inicial otimista 120 = maior retorno possível; ε = 0,5 fixo no treino; exploring starts: cada partida
+    de treino começa num estado de decisão uniforme) treinado por 3.000.000 partidas, 5 sementes (1..5).
+    Estado = (casas livres, lançamentos feitos, mão como multiconjunto); ações = marcar uma casa livre
+    ou guardar 0–4 dados. A política aprendida (argmax de Q; pares nunca vistos = −inf) é avaliada EXATAMENTE
+    no jogo normal: média sobre sementes 27.398 (valor), dp 0.359, mín 27.123, máx 28.011; distância ao
+    ótimo 4.995 pontos (84.6% do ótimo); 76% das decisões iguais às da política ótima (H6). Afirmação
+    estatística: com outras sementes e a mesma configuração, espera-se média entre ~26 e ~29.'
+  tipo: aprendizado
+  valor: '27.3981000148'
+  valor_num: 27.3981000147742
+  derivacao: modelo.md#c37
+  status: derivada
+  validacao: null
+  historico: []
+- id: C38
+  enunciado: 'Curva de aprendizado de C37 (mesma configuração, cada orçamento treinado do zero, 5 sementes,
+    valor exato da política aprendida): 10 mil partidas 6.73; 30 mil 11.07; 100 mil 15.29 (≈ gulosa 15.16);
+    300 mil 17.58 (valor; todas as 5 sementes acima da gulosa, mín 16.96); 1 milhão 21.85; 3 milhões 27.40;
+    ótimo 32.39. A média cresce monotonamente com o orçamento e não converge ao ótimo em 3 milhões de
+    partidas. Afirmação estatística (±1 ponto por orçamento).'
+  tipo: aprendizado
+  valor: '17.5799326211'
+  valor_num: 17.5799326211086
+  derivacao: modelo.md#c38
+  status: derivada
+  validacao: null
+  historico: []
