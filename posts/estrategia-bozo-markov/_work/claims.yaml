@@ -33,9 +33,19 @@ claims:
   valor: 1/1296
   valor_num: 0.000771604938271605
   derivacao: modelo.md#c1
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: enumeração das 6^5 jogadas (exata) + MC literal
+    n: 10000000
+    estimativa: 0.0007644 (exato 1/1296)
+    ic: '[0.000742217; 0.000787246]'
+    nota: enumeração == valor afirmado (Fraction) e IC de Wilson 99% contém o valor
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: enumeração das 6^5 jogadas (exata) + MC literal | enumeração == valor afirmado (Fraction) e
+      IC de Wilson 99% contém o valor
 - id: C2
   enunciado: Probabilidade de sair Quadrada (exatamente quatro iguais + um diferente, D4) no 1º lançamento
     de 5 dados.
@@ -43,9 +53,19 @@ claims:
   valor: 25/1296
   valor_num: 0.0192901234567901
   derivacao: modelo.md#c2
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: enumeração das 6^5 jogadas (exata) + MC literal
+    n: 10000000
+    estimativa: 0.0192491 (exato 25/1296)
+    ic: '[0.0191375; 0.0193613]'
+    nota: enumeração == valor afirmado (Fraction) e IC de Wilson 99% contém o valor
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: enumeração das 6^5 jogadas (exata) + MC literal | enumeração == valor afirmado (Fraction) e
+      IC de Wilson 99% contém o valor
 - id: C3
   enunciado: Probabilidade de sair Fú (exatamente três iguais + dois iguais de outra face, D4) no 1º lançamento
     de 5 dados.
@@ -53,18 +73,38 @@ claims:
   valor: 25/648
   valor_num: 0.0385802469135802
   derivacao: modelo.md#c3
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: enumeração das 6^5 jogadas (exata) + MC literal
+    n: 10000000
+    estimativa: 0.0386113 (exato 25/648)
+    ic: '[0.0384547; 0.0387685]'
+    nota: enumeração == valor afirmado (Fraction) e IC de Wilson 99% contém o valor
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: enumeração das 6^5 jogadas (exata) + MC literal | enumeração == valor afirmado (Fraction) e
+      IC de Wilson 99% contém o valor
 - id: C4
   enunciado: Probabilidade de sair Seguida (1-2-3-4-5 ou 2-3-4-5-6, D5) no 1º lançamento de 5 dados.
   tipo: probabilidade
   valor: 5/162
   valor_num: 0.0308641975308642
   derivacao: modelo.md#c4
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: enumeração das 6^5 jogadas (exata) + MC literal
+    n: 10000000
+    estimativa: 0.0308774 (exato 5/162)
+    ic: '[0.0307368; 0.0310186]'
+    nota: enumeração == valor afirmado (Fraction) e IC de Wilson 99% contém o valor
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: enumeração das 6^5 jogadas (exata) + MC literal | enumeração == valor afirmado (Fraction) e
+      IC de Wilson 99% contém o valor
 - id: C5
   enunciado: Máxima probabilidade, sobre todas as estratégias de guarda (H4), de terminar uma rodada de
     até 3 lançamentos com General (parando ao conseguir). Igual à da cadeia de Markov com estados 'nº
@@ -74,9 +114,19 @@ claims:
   valor: 347897/7558272
   valor_num: 0.046028642525699
   derivacao: modelo.md#c5
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP exata (Fraction) sobre 252 mãos x 210 guardas + MC literal da política
+    n: 4000000
+    estimativa: 0.0461145 (DP exata 0.046028643)
+    ic: '[0.0458451; 0.0463854]'
+    nota: 'DP exata == afirmado: True'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP exata (Fraction) sobre 252 mãos x 210 guardas + MC literal da política | DP exata == afirmado:
+      True'
 - id: C6
   enunciado: Máxima probabilidade de terminar uma rodada de até 3 lançamentos com Quadrada (exatamente
     4+1, D4; cinco iguais NÃO serve), guardas livres (H4), parando ao conseguir.
@@ -84,9 +134,19 @@ claims:
   valor: 1042585/3779136
   valor_num: 0.275879195668005
   derivacao: modelo.md#c6
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP exata (Fraction) sobre 252 mãos x 210 guardas + MC literal da política
+    n: 2000000
+    estimativa: 0.276197 (DP exata 0.275879196)
+    ic: '[0.275383; 0.277012]'
+    nota: 'DP exata == afirmado: True'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP exata (Fraction) sobre 252 mãos x 210 guardas + MC literal da política | DP exata == afirmado:
+      True'
 - id: C7
   enunciado: Máxima probabilidade de terminar uma rodada de até 3 lançamentos com Fú (exatamente 3+2,
     D4), guardas livres (H4), parando ao conseguir.
@@ -94,9 +154,19 @@ claims:
   valor: 5485535/15116544
   valor_num: 0.362882878520381
   derivacao: modelo.md#c7
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP exata (Fraction) sobre 252 mãos x 210 guardas + MC literal da política
+    n: 2000000
+    estimativa: 0.362584 (DP exata 0.362882879)
+    ic: '[0.361708; 0.36346]'
+    nota: 'DP exata == afirmado: True'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP exata (Fraction) sobre 252 mãos x 210 guardas + MC literal da política | DP exata == afirmado:
+      True'
 - id: C8
   enunciado: Máxima probabilidade de terminar uma rodada de até 3 lançamentos com Seguida (12345 ou 23456),
     guardas livres (H4), parando ao conseguir.
@@ -104,9 +174,19 @@ claims:
   valor: 319695199/1224440064
   valor_num: 0.261095016734114
   derivacao: modelo.md#c8
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP exata (Fraction) sobre 252 mãos x 210 guardas + MC literal da política
+    n: 2000000
+    estimativa: 0.261338 (DP exata 0.261095017)
+    ic: '[0.260539; 0.262139]'
+    nota: 'DP exata == afirmado: True'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP exata (Fraction) sobre 252 mãos x 210 guardas + MC literal da política | DP exata == afirmado:
+      True'
 - id: C9
   enunciado: Sem limite de lançamentos, jogando para o General com a regra 'guarda os dados da face mais
     frequente (um só se todos diferem) e relança o resto', o número esperado de lançamentos (contando
@@ -115,9 +195,18 @@ claims:
   valor: 191283/17248
   valor_num: 11.090155380334
   derivacao: modelo.md#c9
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: sistema linear em 252 mãos (outra cadeia) + MC literal
+    n: 2000000
+    estimativa: 11.08794 (linear 11.090155380)
+    ic: '[11.0763; 11.0996]'
+    nota: ''
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'sistema linear em 252 mãos (outra cadeia) + MC literal | '
 - id: C10
   enunciado: 'Com só a casa de número k livre (uma rodada, até 3 lançamentos, guardas livres H4), a pontuação
     esperada máxima é 455k/216 = 5k(1-(5/6)^3): Ás 455/216, Duque 455/108, Terno 455/72, Quadra 455/54,
@@ -126,9 +215,19 @@ claims:
   valor: 455/216
   valor_num: 2.10648148148148
   derivacao: modelo.md#c10
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP própria nas cartelas de 1 casa + MC literal (6 casas, 1e6 cada)
+    n: 1000000
+    estimativa: Ás 2.1075 (DP 2.106481481); Sena 12.6347 (DP 12.638888889)
+    ic: Ás [2.10461; 2.11031]
+    nota: identidade 455k/216 confere em k=1..6 (|dif|<1e-9)
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: DP própria nas cartelas de 1 casa + MC literal (6 casas, 1e6 cada) | identidade 455k/216 confere
+      em k=1..6 (|dif|<1e-9)
 - id: C11
   enunciado: Pontuação esperada máxima de uma rodada (até 3 lançamentos, H2–H5) em que a única casa livre
     é o Fú (20; 25 de boca). Igual a 20*C7 + 5*C3.
@@ -136,9 +235,18 @@ claims:
   valor: 28156675/3779136
   valor_num: 7.45055880497553
   derivacao: modelo.md#c11
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP própria (1 casa livre) + MC literal da política
+    n: 1000000
+    estimativa: 7.4473 (DP 7.450558805)
+    ic: '[7.42179; 7.47287]'
+    nota: ''
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP própria (1 casa livre) + MC literal da política | '
 - id: C12
   enunciado: Pontuação esperada máxima de uma rodada em que a única casa livre é a Seguida (30; 35 de
     boca). Igual a 30*C8 + 5*C4.
@@ -146,9 +254,18 @@ claims:
   valor: 1629968795/204073344
   valor_num: 7.98717148967775
   derivacao: modelo.md#c12
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP própria (1 casa livre) + MC literal da política
+    n: 1000000
+    estimativa: 7.9937 (DP 7.987171490)
+    ic: '[7.95905; 8.02842]'
+    nota: ''
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP própria (1 casa livre) + MC literal da política | '
 - id: C13
   enunciado: Pontuação esperada máxima de uma rodada em que a única casa livre é a Quadrada (40; 45 de
     boca; exatamente 4+1). Igual a 40*C6 + 5*C2.
@@ -156,9 +273,18 @@ claims:
   valor: 10516975/944784
   valor_num: 11.1316184440041
   derivacao: modelo.md#c13
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP própria (1 casa livre) + MC literal da política
+    n: 1000000
+    estimativa: 11.1210 (DP 11.131618444)
+    ic: '[11.0745; 11.1675]'
+    nota: ''
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP própria (1 casa livre) + MC literal da política | '
 - id: C14
   enunciado: 'Pontuação esperada máxima de uma rodada em que a única casa livre é o General (50; 55 de
     boca). Igual a 50*C5 + 5*C1. Ponte: a programação dinâmica do jogo completo (C17), avaliada nas cartelas
@@ -167,9 +293,19 @@ claims:
   valor: 8712005/3779136
   valor_num: 2.30529015097631
   derivacao: modelo.md#c14
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP própria (1 casa livre) + MC literal da política
+    n: 1000000
+    estimativa: 2.3086 (DP 2.305290151)
+    ic: '[2.28155; 2.33565]'
+    nota: 'ponte: DP nas cartelas de 1 casa reproduz C10-C14'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP própria (1 casa livre) + MC literal da política | ponte: DP nas cartelas de 1 casa reproduz
+      C10-C14'
 - id: C15
   enunciado: 'Soma, sobre as 10 casas, da pontuação esperada máxima de cada casa jogada sozinha numa rodada
     (C10 com k=1..6 + C11 + C12 + C13 + C14). Comparar com C17: menos da metade.'
@@ -177,9 +313,18 @@ claims:
   valor: 14919955235/204073344
   valor_num: 73.1107500007448
   derivacao: modelo.md#c15
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: soma dos valores DP das 10 cartelas de uma casa
+    n: null
+    estimativa: 73.110750001 (afirmado 73.110750001)
+    ic: exato (float64, tol 1e-9)
+    nota: '73.1108 < C17/2 = 73.3642: True'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'soma dos valores DP das 10 cartelas de uma casa | 73.1108 < C17/2 = 73.3642: True'
 - id: C16
   enunciado: O MDP do Bozó solo tem 1023 x 3 x 252 = 773388 estados de decisão (conjunto não vazio de
     casas livres, nº de lançamentos já feitos 1–3, mão como multiconjunto de 5 dados — 252 multiconjuntos).
@@ -188,9 +333,19 @@ claims:
   valor: '773388'
   valor_num: 773388.0
   derivacao: modelo.md#c16
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: contagem por enumeração (máscaras x lançamentos x mãos)
+    n: null
+    estimativa: '773388'
+    ic: exato
+    nota: 252 = C(10,5) multiconjuntos de 5 dados de 6 faces
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: contagem por enumeração (máscaras x lançamentos x mãos) | 252 = C(10,5) multiconjuntos de 5
+      dados de 6 faces
 - id: C17
   enunciado: Pontuação total esperada do Bozó solo (10 rodadas, H1–H5, H7) sob a política ótima, partindo
     da cartela vazia. Valor racional exato (denominador divide 6^150). Monte Carlo de 10^6 partidas da
@@ -200,9 +355,18 @@ claims:
   valor: 1940206672837438231624158172110493375625140993992833369586738812611877835041823526946464552066599035/13223117882420168818573784358882566277177840230594351818945892799279456119139300013505658325303296
   valor_num: 146.728380559694
   derivacao: modelo.md#c17
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP própria (float64) + MC literal 1e6 partidas da política ótima
+    n: 1000000
+    estimativa: MC 146.7289; DP 146.7283805597
+    ic: '[146.648; 146.81]'
+    nota: '|DP - afirmado| = 1.14e-13'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: DP própria (float64) + MC literal 1e6 partidas da política ótima | |DP - afirmado| = 1.14e-13
 - id: C18
   enunciado: 'Mesmo jogo de C17, mas sem o bônus de boca (+5 removido; General vale sempre 50 etc.): pontuação
     esperada ótima. Tolerância 1e-9 (valor exato; o decimal é arredondamento).'
@@ -210,9 +374,18 @@ claims:
   valor: 568501073931632449848635757539835522375953384140517471459263602579120120838187466267888639417762965/3917960854050420390688528698928167785830471179435363501909894162749468479744977781779454318608384
   valor_num: 145.101264435532
   derivacao: modelo.md#c18
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP própria sem boca + MC literal 1e6 partidas (boca=False)
+    n: 1000000
+    estimativa: MC 145.0989; DP 145.1012644355
+    ic: '[145.019; 145.179]'
+    nota: '|DP - afirmado| = 8.53e-14'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: DP própria sem boca + MC literal 1e6 partidas (boca=False) | |DP - afirmado| = 8.53e-14
 - id: C19
   enunciado: 'Valor do bônus de boca sob jogo ótimo: C17 − C18 (pontos por partida). Tolerância 1e-9 (valor
     exato; o decimal é arredondamento).'
@@ -220,9 +393,18 @@ claims:
   valor: 172124386545429707080099923308387900850386580148695227293793231258779417703526626338723152253192225/105784943059361350548590274871060530217422721844754814551567142394235648953114400108045266602426368
   valor_num: 1.62711612416185
   derivacao: modelo.md#c19
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP(com boca) - DP(sem boca) + MC (duas amostras independentes)
+    n: 1000000
+    estimativa: MC 1.6300; DP 1.6271161242
+    ic: '[1.5159; 1.744]'
+    nota: ''
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP(com boca) - DP(sem boca) + MC (duas amostras independentes) | '
 - id: C20
   enunciado: 'Distribuição da pontuação final do Bozó solo sob a política ótima (H6): média 146,7284,
     desvio-padrão 31,5055 (valor), quantil 5% = 98, mediana = 146, quantil 95% = 202, moda = 147 (quantil
@@ -231,9 +413,19 @@ claims:
   valor: '31.5055287427'
   valor_num: 31.5055287426837
   derivacao: modelo.md#c20
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: fluxo de probabilidade exato (política ótima) + MC 1e6 com qui-quadrado
+    n: 1000000
+    estimativa: 'exato: dp 31.5055287427, q5 98, med 146, q95 202, moda 147; MC dp 31.530, quantis [97,
+      146, 202]'
+    ic: chi2 p=0.541
+    nota: média exata 146.728381
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: fluxo de probabilidade exato (política ótima) + MC 1e6 com qui-quadrado | média exata 146.728381
 - id: C21
   enunciado: 'Sob a política ótima (H6), probabilidade de cada casa terminar o jogo com pontos > 0 (não
     riscada): Ás 0,8460; Duque 0,9743; Terno 0,9833; Quadra 0,9932; Quina 0,9931; Sena 0,9953; Fú 0,9196;
@@ -242,9 +434,18 @@ claims:
   valor: '0.274992703274'
   valor_num: 0.274992703274235
   derivacao: modelo.md#c21
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: fluxo exato + MC literal (1e6) por casa, Wilson 99%
+    n: 1000000
+    estimativa: exato 0.8460, 0.9743, 0.9833, 0.9932, 0.9931, 0.9953, 0.9196, 0.7649, 0.9112, 0.2750
+    ic: MC dentro do IC em 10/10 casas
+    nota: 'arredondado 4 casas == afirmado: True'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'fluxo exato + MC literal (1e6) por casa, Wilson 99% | arredondado 4 casas == afirmado: True'
 - id: C22
   enunciado: Sob a política ótima (H6), probabilidade de o General ser a última casa preenchida (10ª rodada)
     = 0,2348 (valor); Seguida 0,2364; Quadrada 0,1196. Tolerância 1e-6.
@@ -252,9 +453,18 @@ claims:
   valor: '0.23479222647'
   valor_num: 0.234792226469918
   derivacao: modelo.md#c22
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: fluxo exato (P(chegar à 10ª rodada só com a casa c livre)) + MC literal 1e6
+    n: 1000000
+    estimativa: exato General 0.234792, Seguida 0.236433, Quadrada 0.119641
+    ic: MC General 0.2348 [0.233704; 0.235888]
+    nota: ''
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'fluxo exato (P(chegar à 10ª rodada só com a casa c livre)) + MC literal 1e6 | '
 - id: C23
   enunciado: 'Cartela vazia (todas as 10 casas livres), 1º lançamento {5,6,6,6,6}: a ação ótima é guardar
     6666 e relançar um dado (valor esperado do resto do jogo 160,559383), e não marcar Quadrada de boca
@@ -265,9 +475,19 @@ claims:
   valor: 100299120437466862297323119198376899283040414015635058820927227662639860087894625216374657195/23618108929219837424578804367574313909568330315847822036011611224135974149697252253203693568
   valor_num: 4.24670411750785
   derivacao: modelo.md#c23
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP própria (Q das ações) + MC literal da rodada com guarda 6666 (4e6) + marcação literal
+    n: 4000000
+    estimativa: guardar 6666 160.559383 (MC 160.5556); marcar Quadrada 156.312679; vantagem 4.246704
+    ic: 'MC guardar: [160.538; 160.574]'
+    nota: 'melhor ação = guardar 6666: True; quadra+avulso nunca marcada em r=1,2 (cartela vazia): True'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP própria (Q das ações) + MC literal da rodada com guarda 6666 (4e6) + marcação literal |
+      melhor ação = guardar 6666: True; quadra+avulso nunca marcada em r=1,2 (cartela vazia): True'
 - id: C24
   enunciado: 'Cartela vazia, 2º lançamento {1,1,4,4,4} (Fú sem boca): a ação ótima é guardar 444 e relançar
     dois dados (146,768173), e não marcar Fú = 20 (146,684218); valor = vantagem. Já com {1,1,1,4,4} o
@@ -277,9 +497,20 @@ claims:
   valor: 3965705385657858973266472766607878544346385118986588185551185955865649932174196286307243105/47236217858439674849157608735148627819136660631695644072023222448271948299394504506407387136
   valor_num: 0.0839547611017995
   derivacao: modelo.md#c24
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP própria + MC literal da rodada a partir do estado (8e6 e 4e6)
+    n: 8000000
+    estimativa: '{1,1,4,4,4}: guardar 444 146.768173 (MC 146.7666) vs Fú 146.684218; vantagem 0.083955.
+      {1,1,1,4,4}: Fú 146.684218 vs guardar 111 145.374493 (MC 145.3792) vantagem 1.309725'
+    ic: 'MC guardar 444: [146.76; 146.773]'
+    nota: 'ações ótimas conforme afirmado: True, True'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP própria + MC literal da rodada a partir do estado (8e6 e 4e6) | ações ótimas conforme afirmado:
+      True, True'
 - id: C25
   enunciado: 'Cartela vazia, 3º lançamento {1,2,3,4,6}: a ação ótima é marcar Ás (1 ponto; valor total
     138,267962), e não Sena (6 pontos; 131,675316); valor = vantagem. Tolerância 1e-9 (valor exato; o
@@ -288,9 +519,19 @@ claims:
   valor: 20023900332473404117931227977821231041847033422956022382398469046079174154356820719905715/3037308247070452343695833895006984813473293507696479171297789509276745646823206308282368
   valor_num: 6.59264674627176
   derivacao: modelo.md#c25
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP própria + marcação literal (determinística) + V da cartela restante (validado em C17)
+    n: 1000
+    estimativa: Ás 138.267962, Sena 131.675316, vantagem 6.592647
+    ic: exato (determinístico)
+    nota: 'melhor ação é marcar Ás: True'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP própria + marcação literal (determinística) + V da cartela restante (validado em C17) |
+      melhor ação é marcar Ás: True'
 - id: C26
   enunciado: 'Cartela vazia, 1º lançamento {2,2,3,4,5}: a ação ótima é guardar 2345 e relançar um dado
     (147,452503), e não guardar o par 22 (144,634927); valor = vantagem. Tolerância 1e-9 (valor exato;
@@ -299,9 +540,18 @@ claims:
   valor: 3194199044182851495714455739583002584586002143980863919219006328591252181116884360921850582111/1133669228602552196379782609643567067659279855160695457728557338758526759185468108153777291264
   valor_num: 2.81757585333799
   derivacao: modelo.md#c26
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: DP própria + MC literal da rodada para as duas ações (4e6 cada)
+    n: 4000000
+    estimativa: guardar 2345 147.452503 (MC 147.4492); guardar 22 144.634927 (MC 144.6306); vantagem 2.817576
+    ic: '2345: [147.439; 147.459]; 22: [144.621; 144.64]'
+    nota: 'melhor ação: True'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'DP própria + MC literal da rodada para as duas ações (4e6 cada) | melhor ação: True'
 - id: C27
   enunciado: 'Mapa de decisão, cartela vazia, 1º lançamento: a política ótima marca imediatamente exatamente
     nas 38 mãos com General, Fú ou Seguida (de boca) — nunca com Quadrada de boca. valor = probabilidade
@@ -311,9 +561,21 @@ claims:
   valor: 91/1296
   valor_num: 0.0702160493827161
   derivacao: modelo.md#c27
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: decisões da minha DP na cartela vazia (252 mãos) + MC literal da 1ª rodada (1e6)
+    n: 1000000
+    estimativa: '38 mãos marcam (== General/Fú/Seguida: True); P(parar)=0.070216049; MC 0.07006'
+    ic: '[0.0694084; 0.0707233]'
+    nota: 'quadrada de boca marcada: False; mãos de dois pares: 60, todas guardam o par alto: True; 12346
+      etc: True; decisões estritas (sem empate): True'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'decisões da minha DP na cartela vazia (252 mãos) + MC literal da 1ª rodada (1e6) | quadrada
+      de boca marcada: False; mãos de dois pares: 60, todas guardam o par alto: True; 12346 etc: True;
+      decisões estritas (sem empate): True'
 - id: C28
   enunciado: 'Cartela vazia, 1º lançamento: probabilidade (sobre o lançamento) de a política ótima (H6)
     e a heurística gulosa (G1–G4) tomarem a mesma ação.'
@@ -321,9 +583,21 @@ claims:
   valor: 1151/1296
   valor_num: 0.888117283950617
   derivacao: modelo.md#c28
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: tabelas de ação (minha DP e gulosa própria) ponderadas por P(mão) + MC literal 1e6 (gulosa
+      literal x tabela ótima)
+    n: 1000000
+    estimativa: exato 0.888117284 (1151/1296=0.888117284); MC 0.88807
+    ic: '[0.887257; 0.888882]'
+    nota: 'lido com desempate H6; se ''mesma ação'' = a ação gulosa é ótima (valor igual a 1e-9): 0.888117'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'tabelas de ação (minha DP e gulosa própria) ponderadas por P(mão) + MC literal 1e6 (gulosa
+      literal x tabela ótima) | lido com desempate H6; se ''mesma ação'' = a ação gulosa é ótima (valor
+      igual a 1e-9): 0.888117'
 - id: C29
   enunciado: Pontuação total esperada do Bozó solo sob a heurística gulosa G1–G4, partindo da cartela
     vazia (valor exato por avaliação da política fixa). Tolerância 1e-9 (valor exato; o decimal é arredondamento).
@@ -331,9 +605,20 @@ claims:
   valor: 60212501656159179811945335765621140567731839334045995630326200420269313015/499005369933318022510547289022246534068160676911130653716867693158596608
   valor_num: 120.66503746083
   derivacao: modelo.md#c29
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: avaliação exata da política gulosa (minha) + MC literal 1e6 (gulosa escrita direto sobre os
+      dados)
+    n: 1000000
+    estimativa: exato 120.6650374608; MC 120.6269
+    ic: '[120.543; 120.71]'
+    nota: '|dif| = 1.42e-14'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: avaliação exata da política gulosa (minha) + MC literal 1e6 (gulosa escrita direto sobre os
+      dados) | |dif| = 1.42e-14
 - id: C30
   enunciado: 'Custo da heurística gulosa: C17 − C29 pontos por partida. Tolerância 1e-9 (valor exato;
     o decimal é arredondamento).'
@@ -341,9 +626,18 @@ claims:
   valor: 344638658206236743494768432969506839119235032165808247973148086673825193075053409764592111271135355/13223117882420168818573784358882566277177840230594351818945892799279456119139300013505658325303296
   valor_num: 26.0633430988637
   derivacao: modelo.md#c30
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: C17 - C29 (exatos) + MC (2 amostras independentes)
+    n: 1000000
+    estimativa: exato 26.0633430989; MC 26.1020
+    ic: '[25.9856; 26.2184]'
+    nota: ''
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'C17 - C29 (exatos) + MC (2 amostras independentes) | '
 - id: C31
   enunciado: 'Monte Carlo vetorizado da gulosa G1–G4: n = 10^6 partidas, semente numpy default_rng(20261001):
     média 120.633, IC99% [120.549; 120.716], desvio-padrão 32.39. O IC contém o valor exato C29. (Afirmação
@@ -352,9 +646,19 @@ claims:
   valor: '120.632823'
   valor_num: 120.632823
   derivacao: modelo.md#c31
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: MC vetorizado independente, semente 20260101, 1e6 partidas gulosas
+    n: 1000000
+    estimativa: média 120.627, dp 32.389
+    ic: '[120.543; 120.71]'
+    nota: afirmado 120.633 / IC [120.549; 120.716] / dp 32.39; |média - C29| = 0.038
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: MC vetorizado independente, semente 20260101, 1e6 partidas gulosas | afirmado 120.633 / IC [120.549;
+      120.716] / dp 32.39; |média - C29| = 0.038
 - id: C32
   enunciado: 'Distribuição da pontuação final sob a gulosa G1–G4: média 120,6650, desvio-padrão 32,3876
     (valor), quantil 5% = 72, mediana = 114, quantil 95% = 180, moda = 100. Tolerância: dp ±1e-6; quantis
@@ -363,9 +667,18 @@ claims:
   valor: '32.3875761005'
   valor_num: 32.3875761005077
   derivacao: modelo.md#c32
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: fluxo exato (gulosa) + MC literal 1e6 com qui-quadrado
+    n: 1000000
+    estimativa: exato dp 32.3875761005, q5 72, med 114, q95 180, moda 100
+    ic: chi2 p=0.880
+    nota: média exata 120.665037; MC dp 32.389
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: fluxo exato (gulosa) + MC literal 1e6 com qui-quadrado | média exata 120.665037; MC dp 32.389
 - id: C33
   enunciado: 'Sob a gulosa G1–G4, probabilidade de cada casa terminar com pontos > 0: Ás 0,5722; Duque
     0,7851; Terno 0,8712; Quadra 0,9204; Quina 0,9511; Sena 0,9742; Fú 0,8584; Seguida 0,2587; Quadrada
@@ -374,9 +687,18 @@ claims:
   valor: '0.258699511807'
   valor_num: 0.258699511806523
   derivacao: modelo.md#c33
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: fluxo exato (gulosa) + MC literal por casa
+    n: 1000000
+    estimativa: exato 0.5722, 0.7851, 0.8712, 0.9204, 0.9511, 0.9742, 0.8584, 0.2587, 0.9282, 0.2983
+    ic: MC dentro do IC em 10/10
+    nota: 'arredondado == afirmado: True'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'fluxo exato (gulosa) + MC literal por casa | arredondado == afirmado: True'
 - id: C34
   enunciado: Numa partida sob a política ótima e outra, independente, sob a gulosa G1–G4, probabilidade
     de a ótima fazer estritamente mais pontos (valor); empate 0,00784. Tolerância 1e-6.
@@ -384,9 +706,18 @@ claims:
   valor: '0.716650182155'
   valor_num: 0.716650182155041
   derivacao: modelo.md#c34
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: convolução exata das duas distribuições (independentes) + MC pareado 1e6
+    n: 1000000
+    estimativa: exato P(ótima>gulosa)=0.716650182, empate 0.007836; MC 0.71705
+    ic: '[0.715887; 0.718208]'
+    nota: ''
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'convolução exata das duas distribuições (independentes) + MC pareado 1e6 | '
 - id: C35
   enunciado: 'Política ótima não única: número de situações de decisão (casas livres, lançamento 1–3,
     mão) em que duas ou mais ações (marcar alguma casa ou guardar algum submulticonjunto de 0–4 dados)
@@ -397,9 +728,22 @@ claims:
   valor: '9441'
   valor_num: 9441.0
   derivacao: modelo.md#c35
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: 'minha DP: gap entre melhor e 2º melhor valor de ação nas 773388 situações; fluxo com desempate
+      oposto'
+    n: 773388
+    estimativa: 9441 empates (tol 1e-9)
+    ic: 'contagens por tolerância: {1e-12: 9441, 1e-10: 9441, 1e-09: 9441, 1e-07: 9441, 1e-06: 9450}'
+    nota: 'desempate oposto: máx|dist final| = 1.30e-17, máx|prob casa| = 1.11e-16; decisões que mudam:
+      9441'
+  historico:
+  - data: '2026-10-02'
+    de: derivada
+    para: validada
+    nota: 'minha DP: gap entre melhor e 2º melhor valor de ação nas 773388 situações; fluxo com desempate
+      oposto | desempate oposto: máx|dist final| = 1.30e-17, máx|prob casa| = 1.11e-16; decisões que mudam:
+      9441'
 arquivadas:
 - id: C36
   enunciado: 'Bozó reduzido com só 3 casas — Sena, Seguida e General (3 rodadas, mesmas regras H2–H5):

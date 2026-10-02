@@ -1,0 +1,282 @@
+{
+ "C1": {
+  "ok": true,
+  "metodo": "enumeração das 6^5 jogadas (exata) + MC literal",
+  "n": 10000000,
+  "estimativa": "0.0007644 (exato 1/1296)",
+  "ic": "[0.000742217; 0.000787246]",
+  "nota": "enumeração == valor afirmado (Fraction) e IC de Wilson 99% contém o valor"
+ },
+ "C2": {
+  "ok": true,
+  "metodo": "enumeração das 6^5 jogadas (exata) + MC literal",
+  "n": 10000000,
+  "estimativa": "0.0192491 (exato 25/1296)",
+  "ic": "[0.0191375; 0.0193613]",
+  "nota": "enumeração == valor afirmado (Fraction) e IC de Wilson 99% contém o valor"
+ },
+ "C3": {
+  "ok": true,
+  "metodo": "enumeração das 6^5 jogadas (exata) + MC literal",
+  "n": 10000000,
+  "estimativa": "0.0386113 (exato 25/648)",
+  "ic": "[0.0384547; 0.0387685]",
+  "nota": "enumeração == valor afirmado (Fraction) e IC de Wilson 99% contém o valor"
+ },
+ "C4": {
+  "ok": true,
+  "metodo": "enumeração das 6^5 jogadas (exata) + MC literal",
+  "n": 10000000,
+  "estimativa": "0.0308774 (exato 5/162)",
+  "ic": "[0.0307368; 0.0310186]",
+  "nota": "enumeração == valor afirmado (Fraction) e IC de Wilson 99% contém o valor"
+ },
+ "C5": {
+  "ok": true,
+  "metodo": "DP exata (Fraction) sobre 252 mãos x 210 guardas + MC literal da política",
+  "n": 4000000,
+  "estimativa": "0.0461145 (DP exata 0.046028643)",
+  "ic": "[0.0458451; 0.0463854]",
+  "nota": "DP exata == afirmado: True"
+ },
+ "C6": {
+  "ok": true,
+  "metodo": "DP exata (Fraction) sobre 252 mãos x 210 guardas + MC literal da política",
+  "n": 2000000,
+  "estimativa": "0.276197 (DP exata 0.275879196)",
+  "ic": "[0.275383; 0.277012]",
+  "nota": "DP exata == afirmado: True"
+ },
+ "C7": {
+  "ok": true,
+  "metodo": "DP exata (Fraction) sobre 252 mãos x 210 guardas + MC literal da política",
+  "n": 2000000,
+  "estimativa": "0.362584 (DP exata 0.362882879)",
+  "ic": "[0.361708; 0.36346]",
+  "nota": "DP exata == afirmado: True"
+ },
+ "C8": {
+  "ok": true,
+  "metodo": "DP exata (Fraction) sobre 252 mãos x 210 guardas + MC literal da política",
+  "n": 2000000,
+  "estimativa": "0.261338 (DP exata 0.261095017)",
+  "ic": "[0.260539; 0.262139]",
+  "nota": "DP exata == afirmado: True"
+ },
+ "C9": {
+  "ok": true,
+  "metodo": "sistema linear em 252 mãos (outra cadeia) + MC literal",
+  "n": 2000000,
+  "estimativa": "11.08794 (linear 11.090155380)",
+  "ic": "[11.0763; 11.0996]",
+  "nota": ""
+ },
+ "C10": {
+  "ok": true,
+  "metodo": "DP própria nas cartelas de 1 casa + MC literal (6 casas, 1e6 cada)",
+  "n": 1000000,
+  "estimativa": "Ás 2.1075 (DP 2.106481481); Sena 12.6347 (DP 12.638888889)",
+  "ic": "Ás [2.10461; 2.11031]",
+  "nota": "identidade 455k/216 confere em k=1..6 (|dif|<1e-9)"
+ },
+ "C11": {
+  "ok": true,
+  "metodo": "DP própria (1 casa livre) + MC literal da política",
+  "n": 1000000,
+  "estimativa": "7.4473 (DP 7.450558805)",
+  "ic": "[7.42179; 7.47287]",
+  "nota": ""
+ },
+ "C12": {
+  "ok": true,
+  "metodo": "DP própria (1 casa livre) + MC literal da política",
+  "n": 1000000,
+  "estimativa": "7.9937 (DP 7.987171490)",
+  "ic": "[7.95905; 8.02842]",
+  "nota": ""
+ },
+ "C13": {
+  "ok": true,
+  "metodo": "DP própria (1 casa livre) + MC literal da política",
+  "n": 1000000,
+  "estimativa": "11.1210 (DP 11.131618444)",
+  "ic": "[11.0745; 11.1675]",
+  "nota": ""
+ },
+ "C14": {
+  "ok": true,
+  "metodo": "DP própria (1 casa livre) + MC literal da política",
+  "n": 1000000,
+  "estimativa": "2.3086 (DP 2.305290151)",
+  "ic": "[2.28155; 2.33565]",
+  "nota": "ponte: DP nas cartelas de 1 casa reproduz C10-C14"
+ },
+ "C15": {
+  "ok": true,
+  "metodo": "soma dos valores DP das 10 cartelas de uma casa",
+  "n": null,
+  "estimativa": "73.110750001 (afirmado 73.110750001)",
+  "ic": "exato (float64, tol 1e-9)",
+  "nota": "73.1108 < C17/2 = 73.3642: True"
+ },
+ "C16": {
+  "ok": true,
+  "metodo": "contagem por enumeração (máscaras x lançamentos x mãos)",
+  "n": null,
+  "estimativa": "773388",
+  "ic": "exato",
+  "nota": "252 = C(10,5) multiconjuntos de 5 dados de 6 faces"
+ },
+ "C17": {
+  "ok": true,
+  "metodo": "DP própria (float64) + MC literal 1e6 partidas da política ótima",
+  "n": 1000000,
+  "estimativa": "MC 146.7289; DP 146.7283805597",
+  "ic": "[146.648; 146.81]",
+  "nota": "|DP - afirmado| = 1.14e-13"
+ },
+ "C18": {
+  "ok": true,
+  "metodo": "DP própria sem boca + MC literal 1e6 partidas (boca=False)",
+  "n": 1000000,
+  "estimativa": "MC 145.0989; DP 145.1012644355",
+  "ic": "[145.019; 145.179]",
+  "nota": "|DP - afirmado| = 8.53e-14"
+ },
+ "C19": {
+  "ok": true,
+  "metodo": "DP(com boca) - DP(sem boca) + MC (duas amostras independentes)",
+  "n": 1000000,
+  "estimativa": "MC 1.6300; DP 1.6271161242",
+  "ic": "[1.5159; 1.744]",
+  "nota": ""
+ },
+ "C20": {
+  "ok": true,
+  "metodo": "fluxo de probabilidade exato (política ótima) + MC 1e6 com qui-quadrado",
+  "n": 1000000,
+  "estimativa": "exato: dp 31.5055287427, q5 98, med 146, q95 202, moda 147; MC dp 31.530, quantis [97, 146, 202]",
+  "ic": "chi2 p=0.541",
+  "nota": "média exata 146.728381"
+ },
+ "C21": {
+  "ok": true,
+  "metodo": "fluxo exato + MC literal (1e6) por casa, Wilson 99%",
+  "n": 1000000,
+  "estimativa": "exato 0.8460, 0.9743, 0.9833, 0.9932, 0.9931, 0.9953, 0.9196, 0.7649, 0.9112, 0.2750",
+  "ic": "MC dentro do IC em 10/10 casas",
+  "nota": "arredondado 4 casas == afirmado: True"
+ },
+ "C22": {
+  "ok": true,
+  "metodo": "fluxo exato (P(chegar à 10ª rodada só com a casa c livre)) + MC literal 1e6",
+  "n": 1000000,
+  "estimativa": "exato General 0.234792, Seguida 0.236433, Quadrada 0.119641",
+  "ic": "MC General 0.2348 [0.233704; 0.235888]",
+  "nota": ""
+ },
+ "C23": {
+  "ok": true,
+  "metodo": "DP própria (Q das ações) + MC literal da rodada com guarda 6666 (4e6) + marcação literal",
+  "n": 4000000,
+  "estimativa": "guardar 6666 160.559383 (MC 160.5556); marcar Quadrada 156.312679; vantagem 4.246704",
+  "ic": "MC guardar: [160.538; 160.574]",
+  "nota": "melhor ação = guardar 6666: True; quadra+avulso nunca marcada em r=1,2 (cartela vazia): True"
+ },
+ "C24": {
+  "ok": true,
+  "metodo": "DP própria + MC literal da rodada a partir do estado (8e6 e 4e6)",
+  "n": 8000000,
+  "estimativa": "{1,1,4,4,4}: guardar 444 146.768173 (MC 146.7666) vs Fú 146.684218; vantagem 0.083955. {1,1,1,4,4}: Fú 146.684218 vs guardar 111 145.374493 (MC 145.3792) vantagem 1.309725",
+  "ic": "MC guardar 444: [146.76; 146.773]",
+  "nota": "ações ótimas conforme afirmado: True, True"
+ },
+ "C25": {
+  "ok": true,
+  "metodo": "DP própria + marcação literal (determinística) + V da cartela restante (validado em C17)",
+  "n": 1000,
+  "estimativa": "Ás 138.267962, Sena 131.675316, vantagem 6.592647",
+  "ic": "exato (determinístico)",
+  "nota": "melhor ação é marcar Ás: True"
+ },
+ "C26": {
+  "ok": true,
+  "metodo": "DP própria + MC literal da rodada para as duas ações (4e6 cada)",
+  "n": 4000000,
+  "estimativa": "guardar 2345 147.452503 (MC 147.4492); guardar 22 144.634927 (MC 144.6306); vantagem 2.817576",
+  "ic": "2345: [147.439; 147.459]; 22: [144.621; 144.64]",
+  "nota": "melhor ação: True"
+ },
+ "C27": {
+  "ok": true,
+  "metodo": "decisões da minha DP na cartela vazia (252 mãos) + MC literal da 1ª rodada (1e6)",
+  "n": 1000000,
+  "estimativa": "38 mãos marcam (== General/Fú/Seguida: True); P(parar)=0.070216049; MC 0.07006",
+  "ic": "[0.0694084; 0.0707233]",
+  "nota": "quadrada de boca marcada: False; mãos de dois pares: 60, todas guardam o par alto: True; 12346 etc: True; decisões estritas (sem empate): True"
+ },
+ "C28": {
+  "ok": true,
+  "metodo": "tabelas de ação (minha DP e gulosa própria) ponderadas por P(mão) + MC literal 1e6 (gulosa literal x tabela ótima)",
+  "n": 1000000,
+  "estimativa": "exato 0.888117284 (1151/1296=0.888117284); MC 0.88807",
+  "ic": "[0.887257; 0.888882]",
+  "nota": "lido com desempate H6; se 'mesma ação' = a ação gulosa é ótima (valor igual a 1e-9): 0.888117"
+ },
+ "C29": {
+  "ok": true,
+  "metodo": "avaliação exata da política gulosa (minha) + MC literal 1e6 (gulosa escrita direto sobre os dados)",
+  "n": 1000000,
+  "estimativa": "exato 120.6650374608; MC 120.6269",
+  "ic": "[120.543; 120.71]",
+  "nota": "|dif| = 1.42e-14"
+ },
+ "C30": {
+  "ok": true,
+  "metodo": "C17 - C29 (exatos) + MC (2 amostras independentes)",
+  "n": 1000000,
+  "estimativa": "exato 26.0633430989; MC 26.1020",
+  "ic": "[25.9856; 26.2184]",
+  "nota": ""
+ },
+ "C31": {
+  "ok": true,
+  "metodo": "MC vetorizado independente, semente 20260101, 1e6 partidas gulosas",
+  "n": 1000000,
+  "estimativa": "média 120.627, dp 32.389",
+  "ic": "[120.543; 120.71]",
+  "nota": "afirmado 120.633 / IC [120.549; 120.716] / dp 32.39; |média - C29| = 0.038"
+ },
+ "C32": {
+  "ok": true,
+  "metodo": "fluxo exato (gulosa) + MC literal 1e6 com qui-quadrado",
+  "n": 1000000,
+  "estimativa": "exato dp 32.3875761005, q5 72, med 114, q95 180, moda 100",
+  "ic": "chi2 p=0.880",
+  "nota": "média exata 120.665037; MC dp 32.389"
+ },
+ "C33": {
+  "ok": true,
+  "metodo": "fluxo exato (gulosa) + MC literal por casa",
+  "n": 1000000,
+  "estimativa": "exato 0.5722, 0.7851, 0.8712, 0.9204, 0.9511, 0.9742, 0.8584, 0.2587, 0.9282, 0.2983",
+  "ic": "MC dentro do IC em 10/10",
+  "nota": "arredondado == afirmado: True"
+ },
+ "C34": {
+  "ok": true,
+  "metodo": "convolução exata das duas distribuições (independentes) + MC pareado 1e6",
+  "n": 1000000,
+  "estimativa": "exato P(ótima>gulosa)=0.716650182, empate 0.007836; MC 0.71705",
+  "ic": "[0.715887; 0.718208]",
+  "nota": ""
+ },
+ "C35": {
+  "ok": true,
+  "metodo": "minha DP: gap entre melhor e 2º melhor valor de ação nas 773388 situações; fluxo com desempate oposto",
+  "n": 773388,
+  "estimativa": "9441 empates (tol 1e-9)",
+  "ic": "contagens por tolerância: {1e-12: 9441, 1e-10: 9441, 1e-09: 9441, 1e-07: 9441, 1e-06: 9450}",
+  "nota": "desempate oposto: máx|dist final| = 1.30e-17, máx|prob casa| = 1.11e-16; decisões que mudam: 9441"
+ }
+}
