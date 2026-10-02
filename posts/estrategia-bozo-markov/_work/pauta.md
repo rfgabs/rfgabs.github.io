@@ -141,3 +141,5 @@ número correspondente, ou riscar alguma casa.
 | E2 | O "jeito intuitivo" é **só a heurística gulosa** (sem míope nem variantes) | Gabs |
 | E3 | **BAIXO fora das contas.** Só pode ser pedido antes de ver; não entra no modelo nem em comparações (a variante "depois de ver" não é calculada) | Gabs |
 | E4 | Valor ótimo do jogo completo pode ser **float64 com tolerância 1e-9** declarada; frações exatas nas pontes pequenas | Gabs |
+| E5 | **RL (D1) fora deste post, por enquanto.** Afirmações C36–C38 arquivadas em `claims.yaml › arquivadas` (resultados e cache preservados para um post futuro). Post segue A + B + C | Gabs, 2026-10-02 |
+| E6 | **Gulosa, quando nada pontua, risca a casa de número mais baixo livre** (Ás → Sena) = regra G2 do matemático; números C29–C34 inalterados. Sem casa de número livre: Fú → Seguida → Quadrada → General | Gabs (1ª parte), padrão provisório do supervisor (2ª parte), 2026-10-02 |

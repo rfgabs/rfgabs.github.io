@@ -400,6 +400,7 @@ claims:
   status: derivada
   validacao: null
   historico: []
+arquivadas:
 - id: C36
   enunciado: 'Bozó reduzido com só 3 casas — Sena, Seguida e General (3 rodadas, mesmas regras H2–H5):
     pontuação esperada ótima (valor, exato). A gulosa G1–G4 nesse jogo vale 15.164236. O jogo tem 5292
@@ -411,6 +412,7 @@ claims:
   status: derivada
   validacao: null
   historico: []
+  motivo: RL fora do post por decisão do Gabs (E5, 2026-10-02)
 - id: C37
   enunciado: 'No Bozó reduzido de C36, Q-learning tabular (tools/rl.py q_learning; passo 1/N(s,a)^0.8;
     Q inicial otimista 120 = maior retorno possível; ε = 0,5 fixo no treino; exploring starts: cada partida
@@ -427,6 +429,7 @@ claims:
   status: derivada
   validacao: null
   historico: []
+  motivo: RL fora do post por decisão do Gabs (E5, 2026-10-02)
 - id: C38
   enunciado: 'Curva de aprendizado de C37 (mesma configuração, cada orçamento treinado do zero, 5 sementes,
     valor exato da política aprendida): 10 mil partidas 6.73; 30 mil 11.07; 100 mil 15.29 (≈ gulosa 15.16);
@@ -440,3 +443,4 @@ claims:
   status: derivada
   validacao: null
   historico: []
+  motivo: RL fora do post por decisão do Gabs (E5, 2026-10-02)
