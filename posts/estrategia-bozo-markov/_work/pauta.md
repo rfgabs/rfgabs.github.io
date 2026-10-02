@@ -1,6 +1,6 @@
 # Estratégia, Bozó e Cadeias de Markov
 
-> Estado: **abordagem escolhida em 2026-10-01** (A + B + C + D1). Próxima etapa: execução.
+> Estado: **v2 em andamento (2026-10-02)** — v1 escrita e validada (35 afirmações); v2 acrescenta formulação, narrativa, heurísticas e visualizações interativas. Próxima etapa: exploração de heurísticas.
 
 ## Pergunta central
 
@@ -143,3 +143,23 @@ número correspondente, ou riscar alguma casa.
 | E4 | Valor ótimo do jogo completo pode ser **float64 com tolerância 1e-9** declarada; frações exatas nas pontes pequenas | Gabs |
 | E5 | **RL (D1) fora deste post, por enquanto.** Afirmações C36–C38 arquivadas em `claims.yaml › arquivadas` (resultados e cache preservados para um post futuro). Post segue A + B + C | Gabs, 2026-10-02 |
 | E6 | **Gulosa, quando nada pontua, risca a casa de número mais baixo livre** (Ás → Sena) = regra G2 do matemático; números C29–C34 inalterados. Sem casa de número livre: Fú → Seguida → Quadrada → General | Gabs (1ª parte), padrão provisório do supervisor (2ª parte), 2026-10-02 |
+
+## Versão 2 (2026-10-02) — pedido do Gabs após ler o 1º rascunho
+
+**Narrativa (F1):** "da mesa ao ótimo, e de volta à mesa" —
+1. a mesa: jogamos no instinto; jogamos bem?
+2. o modelo em degraus: cadeia de Markov → MDP (S, A, P, R) → equação de Bellman;
+3. o ótimo (146,7) e as jogadas contraintuitivas;
+4. o problema: a política ótima é uma tabela de ~773 mil decisões — ninguém joga com isso;
+5. de volta à mesa: que heurísticas simples recuperam a maior parte do ganho? Que "cola" cabe num guardanapo?
+
+**Formulação (F2), no corpo do texto** (intuição antes de cada equação; só derivações longas em callout):
+- cadeia de Markov (sem decisão) → MDP (alguém escolhe a ação; (S, A, P, R));
+- ponte: **fixar uma política num MDP gera uma cadeia de Markov** (é assim que se avalia a gulosa);
+- equação de Bellman de **avaliação** (V^π, política fixa) × de **otimalidade** (V*, com max); programação dinâmica = resolver a de otimalidade de trás para frente.
+
+**Heurísticas (F3):** dado que a ótima é impraticável sem cola, propor heurísticas executáveis à mesa, medir o valor exato de cada uma (avaliação de política) e a relação **complexidade da cola × pontos esperados**. Famílias: o matemático propõe (exploração), o Gabs escolhe.
+
+**Visualizações (F4): interativas permitidas** (Observable JS / Plotly no Quarto, dados pré-computados em JSON; nada de DP no navegador). Ideias: "pergunte ao ótimo" (escolha os dados, veja a jogada ótima × heurísticas), curva complexidade × pontos, diagrama da cadeia do General, "preço" de cada casa ao longo da partida, decomposição da distribuição (ex.: General feito ou não — exige afirmação validada).
+
+**Mantém-se:** decisões D1–D6, E1–E6 (RL fora, BAIXO fora das contas, gulosa com E6) e as 35 afirmações validadas.
