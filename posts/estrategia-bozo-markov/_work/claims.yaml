@@ -25,6 +25,197 @@ gulosa:
     > 0; ou a mão tem cinco iguais.'
   G4: Senão guarda todos os dados da face mais frequente (empate -> a face maior; se todos diferem, guarda
     só o maior dado) e relança o resto.
+colas:
+  definicao: 'Uma cola é um par (tabela de preços p, conjunto de emendas R); ''gulosa'' = sem tabela.
+    Casas 0..9 = Ás, Duque, Terno, Quadra, Quina, Sena, Fú, Seguida, Quadrada, General. Em cada lançamento
+    r = 1, 2, 3 de uma rodada, com a mão d e o conjunto L de casas livres, faz-se nesta ordem: (1) PONTOS:
+    pts(b) = pontuação imediata da casa b em L com a mão d (H5; +5 de boca se r = 1 e b é combinação válida).
+    (2) CASA ESCOLHIDA h: sem tabela, a de maior pts(b), empate -> menor índice (G1–G2); com tabela, a
+    de maior pts(b) − p_b, empate -> menor índice (pauta H5). (3) PARADA: marca h (com pts(h) pontos;
+    0 = riscar) se r = 3; ou se h é Fú/Seguida/Quadrada/General com pts(h) > 0; ou se a mão tem cinco
+    dados iguais (G3) — salvo as exceções das emendas quad_gen e fu_alto. (4) GUARDA (se não parou): guarda-base
+    G4 = todos os dados da face mais frequente (empate: a maior face; se as 5 faces são distintas, só
+    o maior dado) ou, com a emenda alvo, a guarda-alvo; em seguida, se seg4x, doispar ou fu_alto se aplica,
+    ela substitui a guarda (nunca mais de uma se aplica à mesma mão). Relança o resto. Sem tabela e sem
+    emendas, isto é exatamente a gulosa G1–G4.'
+  emendas:
+    seg4x:
+      itens_cola: 3
+      texto: 'Seguida livre e a mão tem 4 faces diferentes que pertencem a uma mesma Seguida (1-2-3-4-5
+        ou 2-3-4-5-6), no 1º ou 2º lançamento, sem parar: guarde um dado de cada uma dessas 4 faces e
+        relance o outro. Se as duas Seguidas servem (ex.: 12346), use a alta (2346).'
+    quad_gen:
+      itens_cola: 2
+      texto: 'General livre e a casa escolhida é a Quadrada, no 1º ou 2º lançamento: não marque; guarde
+        os 4 dados iguais e relance o outro.'
+    alvo:
+      itens_cola: 2
+      texto: 'Ao guardar por face, só conta face ''útil'': aquela cuja casa de número está livre, ou qualquer
+        face se Fú, Quadrada ou General estiver livre. Guarde todos os dados da face útil mais frequente
+        na mão (empate: a maior). Se a mão não tem nenhuma face útil: com a Seguida livre, guarde um dado
+        de cada face que a mão tem em comum com a Seguida (baixa ou alta) de mais faces em comum (empate:
+        a alta); sem a Seguida livre, relance os 5.'
+    risca_gen:
+      itens_cola: 1
+      texto: Quando nenhuma casa livre pontua, risque o General (se livre); senão a de menor índice. (Só
+        na marcação por pontos, sem preços.)
+    doispar:
+      itens_cola: 3
+      texto: 'Fú livre, 2º lançamento, mão com dois pares e um avulso, sem parar: guarde os dois pares
+        e relance o avulso.'
+    fu_alto:
+      itens_cola: 3
+      texto: '2º lançamento, casa escolhida = Fú, a trinca do Fú é de 4, 5 ou 6 e (Quadrada ou General)
+        livre: não marque; guarde a trinca e relance os outros dois.'
+  precos:
+    sozinha_int:
+      tabela:
+      - 2
+      - 4
+      - 6
+      - 8
+      - 11
+      - 13
+      - 7
+      - 8
+      - 11
+      - 2
+      itens_cola: 11
+      texto: 'preço = valor da casa jogada sozinha, arredondado: Ás 2, Duque 4, Terno 6, Quadra 8, Quina
+        11, Sena 13, Fú 7, Seguida 8, Quadrada 11, General 2'
+    2face_8_2:
+      tabela:
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 8
+      - 8
+      - 8
+      - 2
+      itens_cola: 4
+      texto: preço da casa de número = 2 × a face; Fú, Seguida e Quadrada 8; General 2
+    2face_78112:
+      tabela:
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 7
+      - 8
+      - 11
+      - 2
+      itens_cola: 6
+      texto: preço da casa de número = 2 × a face; Fú 7, Seguida 8, Quadrada 11, General 2
+    2face_comb0:
+      tabela:
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 12
+      - 0
+      - 0
+      - 0
+      - 0
+      itens_cola: 3
+      texto: preço da casa de número = 2 × a face; combinações (inclusive General) 0
+    face_comb0:
+      tabela:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 0
+      - 0
+      - 0
+      - 0
+      itens_cola: 3
+      texto: preço da casa de número = a face; combinações 0
+    3face_78112:
+      tabela:
+      - 3
+      - 6
+      - 9
+      - 12
+      - 15
+      - 18
+      - 7
+      - 8
+      - 11
+      - 2
+      itens_cola: 6
+      texto: preço da casa de número = 3 × a face; Fú 7, Seguida 8, Quadrada 11, General 2
+    num0_8_2:
+      tabela:
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 8
+      - 8
+      - 8
+      - 2
+      itens_cola: 4
+      texto: casas de número 0; Fú, Seguida e Quadrada 8; General 2
+    sozinha_prelim:
+      tabela:
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 13
+      - 7
+      - 8
+      - 11
+      - 2
+      itens_cola: 11
+      texto: 'tabela da exploração (Quina 10 em vez de 11): 2,4,6,8,10,13,7,8,11,2'
+    busca_local:
+      tabela:
+      - 2
+      - 4
+      - 6
+      - 8
+      - 10
+      - 13
+      - 5
+      - 7
+      - 8
+      - 3
+      itens_cola: 11
+      texto: tabela achada por busca local (C51)
+  R4: alvo + seg4x + quad_gen + doispar
+  protagonistas:
+    (i): 'sozinha_int + R4: preço = valor da casa jogada sozinha (C10–C14) arredondado ao inteiro mais
+      próximo (Ás 2, Duque 4, Terno 6, Quadra 8, Quina 11, Sena 13, Fú 7, Seguida 8, Quadrada 11, General
+      2) + R4'
+    (ii): '2face_8_2 + R4: casa de número = 2 × a face; Fú, Seguida, Quadrada 8; General 2 + R4'
+  itens_cola: 'Medida de complexidade (pauta H4): cada teste que o jogador faz = 1 item; cada número a
+    decorar = 1 item (uma fórmula que gera vários números, ex. ''2 × a face'', = 1 item); a regra de argmax
+    ''marque a de maior pontos − preço'' = 1 item; a ação (conclusão) = 0; a gulosa G1–G4 = 0. Tabela
+    de 10 preços + argmax = 11; ''2 × face; combinações 8; General 2'' + argmax = 4. Itens de cada emenda:
+    seg4x 3, quad_gen 2, alvo 2, risca_gen 1, doispar 3, fu_alto 3. Itens de uma cola = itens da tabela
+    + soma dos itens das emendas. Checagem: nº de regras = (1 se há tabela) + nº de emendas.'
+  ids: id de cola = <nome da tabela ou 'gulosa'> seguido de '+emenda' para cada emenda, na ordem seg4x,
+    quad_gen, alvo, risca_gen, doispar, fu_alto.
+  rodada_perfeita: 'Teto NÃO executável à mesa: com uma tabela de preços p, em cada rodada o jogador escolhe
+    guardas (quaisquer, H4) e casa para maximizar E[pts(casa marcada) − p_casa] na rodada (programação
+    dinâmica dos 3 lançamentos; desempate H6). Equivale a resolver a equação de Bellman da rodada com
+    valor futuro aditivo V(S'') = c_|S''| + soma dos preços das casas de S''.'
+  iteracao_politica: 'pi_0 = gulosa G1–G4; pi_{k+1}: em cada cartela S, joga a rodada de forma ótima (3
+    lançamentos, guardas H4, desempate H6) maximizando E[pts(b) + E^{pi_k}(S sem b)], com E^{pi_k} o valor
+    exato de pi_k em cada cartela.'
 claims:
 - id: C1
   enunciado: Probabilidade de sair General (cinco dados iguais) no 1º lançamento de 5 dados justos de
@@ -744,6 +935,327 @@ claims:
     nota: 'minha DP: gap entre melhor e 2º melhor valor de ação nas 773388 situações; fluxo com desempate
       oposto | desempate oposto: máx|dist final| = 1.30e-17, máx|prob casa| = 1.11e-16; decisões que mudam:
       9441'
+- id: C39
+  enunciado: 'Lema da diferença de desempenho, forma (i), política ótima × gulosa G1–G4. Estado de decisão
+    s = (S, r, d): S = casas livres, r = nº de lançamentos já feitos na rodada (1–3), d = mão (multiconjunto).
+    d^G(s) = probabilidade de a gulosa passar por s numa partida a partir da cartela vazia; V*(s) = valor
+    ótimo de s (pontos esperados do resto do jogo, rodada atual incluída); Q*(s, a) = valor de tomar a
+    ação a em s e jogar de forma ótima depois. Então Σ_s d^G(s) [V*(s) − Q*(s, G(s))] = C17 − C29 = 26,063343
+    EXATAMENTE (igualdade de racionais). Repartição pelo lançamento e pelo tipo das ações (gulosa × ótima
+    com desempate H6): guarda no 1º 8,727112; guarda no 2º 5,740843; para no 2º (ótima relança) 1,761433;
+    para no 1º (ótima relança) 0,273237; casa no 3º 9,560718. Nenhuma outra combinação tem parcela não
+    nula (a gulosa nunca perde marcando casa diferente da ótima no 1º/2º lançamento, nem relançando onde
+    a ótima marca). Grupos: guardas (as duas guardam, guardas diferentes; 1º + 2º) = 14,467955 (valor),
+    parada (gulosa marca, ótima relança) = 2,034670, casa no 3º = 9,560718. Valores racionais exatos;
+    cada decimal citado é o valor exato arredondado às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: identidade
+  valor: 5165409772009703318950414541936383604605686605943448696597556837250155045072534206893366093770910985/357024182825344558101492177689829289483801686226047499111539105580545315216761100364652774783188992
+  valor_num: 14.4679548907101
+  derivacao: modelo.md#c39
+  status: derivada
+  validacao: null
+  historico: []
+- id: C40
+  enunciado: 'Lema da diferença de desempenho, forma (ii), ótima × gulosa G1–G4 (notação de C39): d*(s)
+    = probabilidade de a política ótima (desempate H6) passar por s; V^G(s) = valor de seguir a gulosa
+    a partir de s; Q^G(s, a) = valor de tomar a em s e seguir a gulosa depois. Então Σ_s d*(s) [Q^G(s,
+    pi*(s)) − V^G(s)] = C17 − C29 = 26,063343 EXATAMENTE. Repartição (tipo da ação da gulosa × da ótima
+    em s): guarda no 1º 10,918087; guarda no 2º 10,219743; para no 2º (ótima relança) 2,117441; para no
+    1º (ótima relança) 0,021142; casa no 3º 2,786930. Grupos: guardas = 21,137830 (valor), parada = 2,138583,
+    casa no 3º = 2,786930. Nas duas formas a maior parte de C30 vem das guardas, não da marcação. A repartição
+    da forma (ii) depende do desempate H6 da ótima (a soma não). Valores racionais exatos; cada decimal
+    citado é o valor exato arredondado às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: identidade
+  valor: 745354731884870820574335845018387597968838690653177986077595675261685429428202866359831713504932815/35261647686453783516196758290353510072474240614918271517189047464745216317704800036015088867475456
+  valor_num: 21.1378304982387
+  derivacao: modelo.md#c40
+  status: derivada
+  validacao: null
+  historico: []
+- id: C41
+  enunciado: 'Forma (i) do lema (C39), por nº de casas livres no início da rodada: 10 livres 1,1706; 9
+    livres 1,3527; 8 livres 1,6039; 7 livres 1,8831; 6 livres 2,1473; 5 livres 2,4213; 4 livres 2,9278;
+    3 livres 4,0508; 2 livres 6,9926; 1 livres 1,5134 (soma = C30). Maiores parcelas ''casa no 3º'' por
+    par (casa marcada pela gulosa -> casa marcada pela ótima): Seguida -> General 2,9032; Sena -> Ás 1,1711;
+    Quina -> Ás 1,0167; Quadra -> Ás 0,6607; Quadrada -> General 0,5201; Fú -> General 0,4185. valor =
+    Seguida -> General (a gulosa risca a Seguida onde a ótima risca o General). Valores racionais exatos;
+    cada decimal citado é o valor exato arredondado às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: numerica
+  valor: 13038204014973283105335931963828267996758141812242280858457218228287109375/4491048329399862202594925601200218806613446092200175883451809238427369472
+  valor_num: 2.90315379810566
+  derivacao: modelo.md#c41
+  status: derivada
+  validacao: null
+  historico: []
+- id: C42
+  enunciado: 'Gulosa G1–G4 + uma única emenda (Colas definidas em claims.yaml › colas): valor esperado
+    exato da cola ''gulosa+seg4x'' (Seguida livre e 4 faces diferentes de uma mesma Seguida no 1º/2º lançamento
+    -> guarde-as) = 128,116360 (valor). Ganho sobre a gulosa (C29) de cada emenda sozinha: seg4x 7,4513;
+    quad_gen 2,0948; alvo 2,8359; risca_gen -0,6637; doispar 0,6769; fu_alto -0,8041. Valores racionais
+    exatos; cada decimal citado é o valor exato arredondado às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: esperanca
+  valor: 135334111111427246103982640839506032984201038333723661354489274423295/1056337469587372399427905826140676671214077877930046769879396122624
+  valor_num: 128.11635959888
+  derivacao: modelo.md#c42
+  status: derivada
+  validacao: null
+  historico: []
+- id: C43
+  enunciado: 'Seleção forward a partir da gulosa G1–G4 sobre as 6 emendas de claims.yaml › colas (a cada
+    passo entra a emenda cujo acréscimo dá o maior valor exato): +seg4x (itens 3) 128,1164; +quad_gen
+    (itens 5) 130,2412; +alvo (itens 7) 131,6100; +risca_gen (itens 8) 134,0498; +doispar (itens 11) 135,1318;
+    +fu_alto (itens 14) 134,6547. O 6º passo (fu_alto) reduz o valor; a melhor cola do caminho é a do
+    5º passo (valor). Valores racionais exatos; cada decimal citado é o valor exato arredondado às casas
+    mostradas; tolerância 1e-9 em valor_num.'
+  tipo: esperanca
+  valor: 212121166241422160413655432336437812828890580605174826654092096794269249271747465/1569735164349596636316058902401373545121166949858297209055454774664405790490624
+  valor_num: 135.131817811645
+  derivacao: modelo.md#c43
+  status: derivada
+  validacao: null
+  historico: []
+- id: C44
+  enunciado: 'Interação: ganho exato da emenda alvo sobre a gulosa G1–G4 = 2,835866; sobre a cola ''2face_8_2''
+    sem emendas (marcação por pontos − preço, preços 2×face / 8 / 2) = 10,697723 (valor); sobre ''sozinha_int''
+    sem emendas = 11,062990. Colas definidas em claims.yaml › colas. Valores racionais exatos; cada decimal
+    citado é o valor exato arredondado às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: esperanca
+  valor: 4700851045455844470906510060394054236382378272989773195717159239309967496942263551115/439425382967368683983772264902630904727038991275532287514147787800455099366783320064
+  valor_num: 10.6977230439256
+  derivacao: modelo.md#c44
+  status: derivada
+  validacao: null
+  historico: []
+- id: C45
+  enunciado: 'Cola protagonista (i) ''sozinha_int+seg4x+quad_gen+alvo+doispar'' (Colas definidas em claims.yaml
+    › colas; preços Ás 2, Duque 4, Terno 6, Quadra 8, Quina 11, Sena 13, Fú 7, Seguida 8, Quadrada 11,
+    General 2 = C10–C14 arredondados ao inteiro mais próximo; 21 itens de cola): valor esperado exato
+    = 141,173041 (valor), 78,7% do caminho de C29 a C17. Valores racionais exatos; cada decimal citado
+    é o valor exato arredondado às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: esperanca
+  valor: 2363779055198386919484112659338002346994123964058420669013501492443354065472137135/16743841753062364120704628292281317814625780798488503563258184263086995098566656
+  valor_num: 141.173040814607
+  derivacao: modelo.md#c45
+  status: derivada
+  validacao: null
+  historico: []
+- id: C46
+  enunciado: 'Cola protagonista (ii) ''2face_8_2+seg4x+quad_gen+alvo+doispar'' (Colas definidas em claims.yaml
+    › colas; preço da casa de número = 2 × a face, Fú/Seguida/Quadrada 8, General 2; 14 itens de cola):
+    valor esperado exato = 141,103896 (valor), 78,4% do caminho de C29 a C17. Valores racionais exatos;
+    cada decimal citado é o valor exato arredondado às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: esperanca
+  valor: 98442554551492915922652825780716448332107051231434897245137938303403325512244065/697660073044265171696026178845054908942740866603687648469091010961958129106944
+  valor_num: 141.103896231205
+  derivacao: modelo.md#c46
+  status: derivada
+  validacao: null
+  historico: []
+- id: C47
+  enunciado: 'Só a marcação por preço, sem emendas (guardas da gulosa G4): cola ''2face_8_2'' = 123,012426
+    (valor; 4 itens); cola ''sozinha_int'' = 122,968115 (11 itens). Contra C29 = 120,665037. Colas definidas
+    em claims.yaml › colas. Valores racionais exatos; cada decimal citado é o valor exato arredondado
+    às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: esperanca
+  valor: 2946425340271236328667622904904167590131902456074437656156851585720744320815/23952257756799265080506269873067833635271712491734271378409649271612637184
+  valor_num: 123.012426226703
+  derivacao: modelo.md#c47
+  status: derivada
+  validacao: null
+  historico: []
+- id: C48
+  enunciado: 'Valor de Shapley exato (6 jogadores, 64 coalizões avaliadas exatamente) das partes da cola
+    (ii): jogadores = preços das casas de número (2×face; ausente = preço 0), preços das combinações (8,
+    8, 8, 2; ausente = 0), alvo, seg4x, quad_gen, doispar; v(T) = valor esperado exato da cola com as
+    partes em T (sem nenhuma = gulosa). φ: precos_numeros 1,2743; precos_combinacoes 5,1980; alvo 5,2608;
+    seg4x 5,6729; quad_gen 2,0457; doispar 0,9870 (valor = seg4x). Soma = C46 − C29. Colas definidas em
+    claims.yaml › colas. Valores racionais exatos; cada decimal citado é o valor exato arredondado às
+    casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: esperanca
+  valor: 269225437349262177857961861166165022639142107260921784275308829705268478720157160449315/47457941360475817870247404609484137710520211057757487051527961082449150731612598566912
+  valor_num: 5.67292700929248
+  derivacao: modelo.md#c48
+  status: derivada
+  validacao: null
+  historico: []
+- id: C49
+  enunciado: 'Valor de Shapley exato, como em C48, para a cola (i) (preços de número 2, 4, 6, 8, 11, 13;
+    de combinações 7, 8, 11, 2): precos_numeros -0,8005; precos_combinacoes 7,3820; alvo 5,6062; seg4x
+    5,3714; quad_gen 2,0152; doispar 0,9337 (valor = preços das combinações). Soma = C45 − C29. Valores
+    racionais exatos; cada decimal citado é o valor exato arredondado às casas mostradas; tolerância 1e-9
+    em valor_num.'
+  tipo: esperanca
+  valor: 1401340976703629390671616696777012694356488952510260698442318906528466073195740494694495/189831765441903271480989618437936550842080844231029948206111844329796602926450394267648
+  valor_num: 7.38201519351354
+  derivacao: modelo.md#c49
+  status: derivada
+  validacao: null
+  historico: []
+- id: C50
+  enunciado: 'Seleção forward a partir da cola ''2face_8_2'' sem emendas (123,0124) sobre alvo, seg4x,
+    quad_gen, doispar, fu_alto: +alvo 133,7101; +seg4x 138,0744; +quad_gen 139,9576; +doispar 141,1039;
+    +fu_alto 140,6065. valor = 1º passo (+alvo). Colas definidas em claims.yaml › colas. Valores racionais
+    exatos; cada decimal citado é o valor exato arredondado às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: esperanca
+  valor: 58755633549869851793245407849797390678970038295153067303048909078179088582655407113355/439425382967368683983772264902630904727038991275532287514147787800455099366783320064
+  valor_num: 133.710149270628
+  derivacao: modelo.md#c50
+  status: derivada
+  validacao: null
+  historico: []
+- id: C51
+  enunciado: 'Busca local nos preços inteiros com as emendas R4 (Ás fixo em 2, pois somar uma constante
+    a todos os preços não muda a cola; vizinhos = ±1 em um dos outros 9 preços), partindo de 2face_8_2:
+    termina na tabela 2, 4, 6, 8, 10, 13, 5, 7, 8, 3 com valor exato 141,292401 (valor); nenhum dos 18
+    vizinhos tem valor maior. Colas definidas em claims.yaml › colas. Valores racionais exatos; cada decimal
+    citado é o valor exato arredondado às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: politica
+  valor: 9463110435220452138069388030842825993008664538612649497858741436260468213327805375/66975367012249456482818513169125271258503123193954014253032737052347980394266624
+  valor_num: 141.292401331518
+  derivacao: modelo.md#c51
+  status: derivada
+  validacao: null
+  historico: []
+- id: C52
+  enunciado: 'Teto não executável ''rodada perfeita com preços'' (claims.yaml › colas › rodada_perfeita),
+    valor esperado exato por tabela: preços 0 (maximiza só os pontos da rodada) 138,5362; preços = C10–C14
+    exatos 145,9827 (valor); C10–C14 arredondados (2,4,6,8,11,13,7,8,11,2) 145,9388; 2×face/8/2 145,5578;
+    preços marginais da cartela cheia (C17 − E*(cheia sem b)) 145,8249; preços do ajuste aditivo de C53
+    146,3452. Valores racionais exatos; cada decimal citado é o valor exato arredondado às casas mostradas;
+    tolerância 1e-9 em valor_num.'
+  tipo: esperanca
+  valor: 80431125476377690087157954438535103996685942420720287124021715833676228282900617829107192953423925/550963245100840367440574348286773594882410009608097992456078866636644004964137500562735763554304
+  valor_num: 145.982742390841
+  derivacao: modelo.md#c52
+  status: derivada
+  validacao: null
+  historico: []
+- id: C53
+  enunciado: 'Ajuste aditivo por mínimos quadrados (pesos iguais nas 1023 cartelas não vazias) E*(S) ≈
+    c_|S| + Σ_{b∈S} p_b (10 constantes c_n + 10 preços; os preços valem a menos de uma constante, normalizados
+    com Ás = 0): preços arredondados a 0,01 = 0,00, 1,81, 3,88, 6,15, 8,56, 11,02, 8,53, 9,74, 19,98,
+    2,35 (Ás..General); resíduo RMS = 1,6629 ponto (valor). Tolerância 0,01 nos preços e 1e-3 no RMS.'
+  tipo: numerica
+  valor: '1.66285368752'
+  valor_num: 1.66285368751834
+  derivacao: modelo.md#c53
+  status: derivada
+  validacao: null
+  historico: []
+- id: C54
+  enunciado: 'Iteração de política (claims.yaml › colas › iteracao_politica) a partir da gulosa: pi_0
+    120,665037 (máx_S [E*(S) − E^pi(S)] = 28.9; cartelas com E^pi = E*: 1); pi_1 142,436816 (máx_S [E*(S)
+    − E^pi(S)] = 7.29; cartelas com E^pi = E*: 20); pi_2 146,086695 (máx_S [E*(S) − E^pi(S)] = 1.49; cartelas
+    com E^pi = E*: 121); pi_3 146,700005 (máx_S [E*(S) − E^pi(S)] = 0.0947; cartelas com E^pi = E*: 443);
+    pi_4 146,728291 (máx_S [E*(S) − E^pi(S)] = 0.00109; cartelas com E^pi = E*: 872); pi_5 146,728381
+    (máx_S [E*(S) − E^pi(S)] = 0; cartelas com E^pi = E*: 1023). Em 5 passos E^pi = E* em todas as 1023
+    cartelas (igualdade exata). valor = pi_1. Valores racionais exatos; cada decimal citado é o valor
+    exato arredondado às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: esperanca
+  valor: 10045113628741402565674701658775691388295557676976423879486061526132659459147560976535863600353931445/70523295372907567032393516580707020144948481229836543034378094929490432635409600072030177734950912
+  valor_num: 142.436815744721
+  derivacao: modelo.md#c54
+  status: derivada
+  validacao: null
+  historico: []
+- id: C55
+  enunciado: 'Curva complexidade × pontos: 38 colas (claims.yaml › colas; id, itens de cola, nº de regras,
+    valor esperado exato): gulosa [itens 0, regras 0] 120,6650; gulosa+risca_gen [itens 1, regras 1] 120,0014;
+    gulosa+quad_gen [itens 2, regras 1] 122,7598; gulosa+alvo [itens 2, regras 1] 123,5009; 2face_comb0
+    [itens 3, regras 1] 116,8268; gulosa+fu_alto [itens 3, regras 1] 119,8609; gulosa+doispar [itens 3,
+    regras 1] 121,3420; face_comb0 [itens 3, regras 1] 122,4577; gulosa+seg4x [itens 3, regras 1] 128,1164;
+    num0_8_2 [itens 4, regras 1] 120,0680; 2face_8_2 [itens 4, regras 1] 123,0124; gulosa+seg4x+quad_gen
+    [itens 5, regras 2] 130,2412; 3face_78112 [itens 6, regras 1] 118,5513; 2face_78112 [itens 6, regras
+    1] 123,0142; 2face_8_2+quad_gen [itens 6, regras 2] 125,0145; 2face_8_2+alvo [itens 6, regras 2] 133,7101;
+    2face_8_2+doispar [itens 7, regras 2] 123,7269; gulosa+seg4x+quad_gen+alvo [itens 7, regras 3] 131,6100;
+    2face_8_2+seg4x [itens 7, regras 2] 132,1916; gulosa+seg4x+quad_gen+alvo+risca_gen [itens 8, regras
+    4] 134,0498; 2face_8_2+seg4x+alvo [itens 9, regras 3] 138,0744; sozinha_int [itens 11, regras 1] 122,9681;
+    sozinha_prelim [itens 11, regras 1] 123,0619; busca_local [itens 11, regras 1] 123,6003; gulosa+seg4x+quad_gen+alvo+risca_gen+doispar
+    [itens 11, regras 5] 135,1318; 2face_8_2+seg4x+quad_gen+alvo [itens 11, regras 4] 139,9576; 2face_comb0+seg4x+quad_gen+alvo+doispar
+    [itens 13, regras 5] 130,2828; face_comb0+seg4x+quad_gen+alvo+doispar [itens 13, regras 5] 136,3671;
+    num0_8_2+seg4x+quad_gen+alvo+doispar [itens 14, regras 5] 133,6635; gulosa+seg4x+quad_gen+alvo+risca_gen+doispar+fu_alto
+    [itens 14, regras 6] 134,6547; 2face_8_2+seg4x+quad_gen+alvo+doispar [itens 14, regras 5] 141,1039;
+    3face_78112+seg4x+quad_gen+alvo+doispar [itens 16, regras 5] 137,1668; 2face_78112+seg4x+quad_gen+alvo+doispar
+    [itens 16, regras 5] 141,1646; 2face_8_2+seg4x+quad_gen+alvo+doispar+fu_alto [itens 17, regras 6]
+    140,6065; sozinha_int+seg4x+quad_gen+alvo+doispar [itens 21, regras 5] 141,1730; sozinha_prelim+seg4x+quad_gen+alvo+doispar
+    [itens 21, regras 5] 141,2054; busca_local+seg4x+quad_gen+alvo+doispar [itens 21, regras 5] 141,2924;
+    sozinha_int+seg4x+quad_gen+alvo+doispar+fu_alto [itens 24, regras 6] 140,6953. Fronteira de Pareto
+    (mais pontos com no máximo tantos itens): gulosa (0; 120,67) · gulosa+alvo (2; 123,50) · gulosa+seg4x
+    (3; 128,12) · gulosa+seg4x+quad_gen (5; 130,24) · 2face_8_2+alvo (6; 133,71) · gulosa+seg4x+quad_gen+alvo+risca_gen
+    (8; 134,05) · 2face_8_2+seg4x+alvo (9; 138,07) · 2face_8_2+seg4x+quad_gen+alvo (11; 139,96) · 2face_8_2+seg4x+quad_gen+alvo+doispar
+    (14; 141,10) · 2face_78112+seg4x+quad_gen+alvo+doispar (16; 141,16) · busca_local+seg4x+quad_gen+alvo+doispar
+    (21; 141,29). Fronteira por nº de regras: gulosa (0; 120,67) · gulosa+seg4x (1; 128,12) · 2face_8_2+alvo
+    (2; 133,71) · 2face_8_2+seg4x+alvo (3; 138,07) · 2face_8_2+seg4x+quad_gen+alvo (4; 139,96) · busca_local+seg4x+quad_gen+alvo+doispar
+    (5; 141,29). valor = nº de colas. Tolerância 1e-4 em cada valor.'
+  tipo: numerica
+  valor: '38'
+  valor_num: 38.0
+  derivacao: modelo.md#c55
+  status: derivada
+  validacao: null
+  historico: []
+- id: C56
+  enunciado: 'Distribuição da pontuação final separada por ''General feito'' (General marcado com pontos
+    > 0). Política ótima (H6): feito com prob. 0,274993, média 182,4807 (valor), moda 197, dp 23,5180;
+    não feito: prob. 0,725007, média 133,1677, moda 146, dp 22,1491. Gulosa G1–G4: feito 0,298316, média
+    156,8562, moda 150, dp 21,6172; não feito 0,701684, média 105,2786, moda 100, dp 22,4198. As duas
+    componentes ficam 49,31 (ótima) e 51,58 (gulosa) pontos uma da outra; a mistura reproduz C20/C32.
+    Médias e dp com tolerância 1e-6; modas exatas.'
+  tipo: distribuicao
+  valor: '182.480651335'
+  valor_num: 182.480651335306
+  derivacao: modelo.md#c56
+  status: derivada
+  validacao: null
+  historico: []
+- id: C57
+  enunciado: 'Ordem de preenchimento: P(casa b preenchida — marcada ou riscada — na rodada t), t = 1..10.
+    Rodada média de preenchimento de cada casa. Ótima (H6): Ás 5,1130; Duque 5,1897; Terno 5,4155; Quadra
+    5,2766; Quina 5,5548; Sena 5,5918; Fú 4,4424; Seguida 6,4937; Quadrada 4,4129; General 7,5097. Gulosa
+    G1–G4: Ás 6,5945; Duque 5,8752; Terno 5,2428; Quadra 4,6822; Quina 4,1576; Sena 3,5803; Fú 4,1474;
+    Seguida 8,0612; Quadrada 3,8795; General 8,7794. Cola (ii) (C46): Ás 4,3987; Duque 5,6124; Terno 6,0168;
+    Quadra 5,9949; Quina 5,9810; Sena 5,8273; Fú 4,4555; Seguida 5,1806; Quadrada 4,9900; General 6,5429.
+    P(General preenchido na 10ª rodada): ótima 0,234792 (= C22), gulosa 0,735540 (valor), cola (ii) 0,055646.
+    P(Seguida preenchida na 1ª rodada): ótima 0,065158, gulosa 0,032092, cola (ii) 0,154607. Valores racionais
+    exatos; cada decimal citado é o valor exato arredondado às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: distribuicao
+  valor: 97122345147571089893341049345680408762034766716080964321083984375/132042183698421549928488228267584583901759734741255846234924515328
+  valor_num: 0.735540282864408
+  derivacao: modelo.md#c57
+  status: derivada
+  validacao: null
+  historico: []
+- id: C58
+  enunciado: 'Preço marginal de cada casa ao longo da partida sob a política ótima (H6): preço_b(t) =
+    E[E*(S_t) − E*(S_t sem b) | b livre], S_t = casas livres no início da rodada t, E* = valor ótimo da
+    cartela (E*(vazia) = 0). Rodada 1 (cartela cheia): Ás 9,4604; Duque 11,3601; Terno 13,5537; Quadra
+    15,9518; Quina 18,4901; Sena 21,0531; Fú 20,0442; Seguida 22,4254; Quadrada 35,4157; General 15,1538
+    (valor = Quadrada). Rodada 5: Ás 8,3522; Duque 10,1469; Terno 12,3399; Quadra 14,6730; Quina 17,1989;
+    Sena 19,7529; Fú 17,4859; Seguida 19,0926; Quadrada 30,0158; General 10,8958. Rodada 10: igual ao
+    valor da casa jogada sozinha (C10–C14), exatamente. Valores racionais exatos; cada decimal citado
+    é o valor exato arredondado às casas mostradas; tolerância 1e-9 em valor_num.'
+  tipo: esperanca
+  valor: 468305997501403171252284507706536921849009855446357590839286807514119648060337906192745024108687995/13223117882420168818573784358882566277177840230594351818945892799279456119139300013505658325303296
+  valor_num: 35.4157016269215
+  derivacao: modelo.md#c58
+  status: derivada
+  validacao: null
+  historico: []
+- id: C59
+  enunciado: 'Formulação: o MDP do Bozó tem 12292056 pares (estado de decisão, ação) (valor): marcar uma
+    casa livre em qualquer lançamento (3 × 252 × Σ_S |S| = 3870720) + guardar um submulticonjunto próprio
+    de 0–4 dados no 1º ou 2º lançamento (2 × 1023 × 4116 = 8421336; em média 49/3 guardas por mão). A
+    equação de Bellman de avaliação aplicada à gulosa (política fixa) reproduz C29 exatamente, e aplicada
+    à política ótima reproduz E*(S) (Bellman de otimalidade) em todas as 1023 cartelas. Sob a ótima, a
+    gulosa e a cola (ii), todas as 1023 cartelas não vazias são alcançadas com probabilidade > 0. Contagens
+    exatas.'
+  tipo: numerica
+  valor: '12292056'
+  valor_num: 12292056.0
+  derivacao: modelo.md#c59
+  status: derivada
+  validacao: null
+  historico: []
 arquivadas:
 - id: C36
   enunciado: 'Bozó reduzido com só 3 casas — Sena, Seguida e General (3 rodadas, mesmas regras H2–H5):

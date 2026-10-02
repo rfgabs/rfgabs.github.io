@@ -1,6 +1,6 @@
 # Estratégia, Bozó e Cadeias de Markov
 
-> Estado: **v2 em andamento (2026-10-02)** — v1 escrita e validada (35 afirmações); v2 acrescenta formulação, narrativa, heurísticas e visualizações interativas. Próxima etapa: exploração de heurísticas.
+> Estado: **v2 em andamento (2026-10-02)** — v1 escrita e validada (35 afirmações); v2 acrescenta formulação, narrativa, heurísticas e visualizações interativas. Próxima etapa: execução da v2.
 
 ## Pergunta central
 
@@ -163,3 +163,14 @@ número correspondente, ou riscar alguma casa.
 **Visualizações (F4): interativas permitidas** (Observable JS / Plotly no Quarto, dados pré-computados em JSON; nada de DP no navegador). Ideias: "pergunte ao ótimo" (escolha os dados, veja a jogada ótima × heurísticas), curva complexidade × pontos, diagrama da cadeia do General, "preço" de cada casa ao longo da partida, decomposição da distribuição (ex.: General feito ou não — exige afirmação validada).
 
 **Mantém-se:** decisões D1–D6, E1–E6 (RL fora, BAIXO fora das contas, gulosa com E6) e as 35 afirmações validadas.
+
+**2026-10-02 — escolhas da v2** (ver `abordagens-v2.md`):
+
+| # | Decisão | Origem |
+|---|---|---|
+| H1 | Entram **§0 (diagnóstico pelo lema da diferença de desempenho) + A (gulosa + emendas) + B (cola de preços) + C (rodada perfeita com preços, teto) + C′ (iteração de política em 5 passos)**. D (árvores) e E ficam fora | Gabs |
+| H2 | **As duas colas são protagonistas:** a tabela "preço = valor da casa jogada sozinha" como origem da ideia (liga ao começo do post) e a regra "número = 2× a face, combinações 8, General 2" + 4 regras de guarda como versão de bolso | Gabs |
+| H3 | **"Pergunte ao ótimo" interativo:** cartela vazia + ~20 cartelas típicas de meio/fim de jogo (~1 MB JSON) | Gabs |
+| H4 | Eixo de complexidade = **"itens de cola"** (definição de `abordagens-v2.md`); curva com nº de regras como checagem | padrão provisório (supervisor) |
+| H5 | Desempate das colas: entre casas empatadas em pontos − preço, a de menor índice | padrão provisório (supervisor) |
+| H6 | Corrigir em `modelo.md` a conclusão de C28 ("diferença quase toda na marcação"): o lema mostra que as guardas respondem pela maior parte | supervisor (correção de erro) |

@@ -1,6 +1,7 @@
-"""Derivação: Estratégia, Bozó e Cadeias de Markov (A + B + C + D1).
+"""Derivação: Estratégia, Bozó e Cadeias de Markov (v1: A + B + C + D1; v2: derivacao_v2.py).
 
-Recalcula todo número de modelo.md e confere claims.yaml.
+Recalcula todo número de modelo.md (v1 e v2), grava resultados/numeros.json e resultados/v2/*.json
+e confere claims.yaml. ~7 min (a v2 usa processos paralelos).
 
     uv run python posts/estrategia-bozo-markov/_work/derivacao.py
     uv run python posts/estrategia-bozo-markov/_work/derivacao.py --refazer-rl   # retreina o RL (cache)
@@ -135,24 +136,28 @@ def escala(n):
 # Política por cartela: tupla (A1, A2, A3), cada uma uma lista de 252 ações;
 # ação >= 0: guardar KEEPS[ação]; ação < 0: marcar a casa -(ação+1).
 
-def _matvec(V):
-    """W[k] = sum_d' TINT[k][d'] V[d'] para as guardas usadas (escala x 6^5)."""
+def _matvec(V, ks=None):
+    """W[k] = sum_d' TINT[k][d'] V[d'] para as guardas usadas (escala x 6^5).
+    ks: restringe às guardas listadas (avaliação de política sem detalhes)."""
     W = {}
-    for k in GUARDAS_USADAS:
+    for k in (GUARDAS_USADAS if ks is None else ks):
         W[k] = sum(c * V[j] for j, c in TINT[k])
     return W
 
 
-def rodada_exata(S, E, boca=True, pol=None, detalhe=False, alt=False):
+def rodada_exata(S, E, boca=True, pol=None, detalhe=False, alt=False, fut=None, Dp=None):
     """Uma rodada a partir da cartela S. E: dict cartela -> valor escalado por escala(|cartela|).
     Retorna (E(S) escalado por escala(|S|), política (A1, A2, A3)[, detalhes]).
-    alt=True usa o desempate oposto (relançar > marcar; casa de maior índice; guarda menos preferida)."""
+    alt=True usa o desempate oposto (relançar > marcar; casa de maior índice; guarda menos preferida).
+    v2: fut (dict casa -> inteiro) e Dp substituem o valor terminal E(S \\ b) e sua escala
+    (rodada com recompensa terminal arbitrária, ex.: pontos - preço; E é ignorado)."""
     bs = caixas(S)
     if alt:
         bs = bs[::-1]
     n = len(bs)
-    Dp = escala(n - 1)
-    fut = {b: E[S & ~(1 << b)] for b in bs}
+    if fut is None:
+        Dp = escala(n - 1)
+        fut = {b: E[S & ~(1 << b)] for b in bs}
     sc1 = SCB if boca else SC
     # marcar, sem e com boca (escala Dp)
     M = {b: [SC[b][d] * Dp + fut[b] for d in range(ND)] for b in bs}
@@ -177,7 +182,8 @@ def rodada_exata(S, E, boca=True, pol=None, detalhe=False, alt=False):
         A3.append(-(b + 1))
 
     def nivel(Vprox, Mx, fator, idx):
-        W = _matvec(Vprox)
+        ks = None if (pol is None or detalhe) else sorted({a for a in pol[idx] if a >= 0})
+        W = _matvec(Vprox, ks)
         A, V = [], []
         for d in range(ND):
             if pol is None:
@@ -599,7 +605,7 @@ def secao_B(E, POL, dist_ot):
         alvo = NUM["E_gulosa"] if nome == "gulosa" else NUM["E_otimo"]
         assert lo <= float(alvo) <= hi, f"MC {nome} fora do IC"
         reg(f"mc_{nome}_dp", float(tot.std(ddof=1)))
-    return GP
+    return GP, distg
 
 
 # ---------------------------------------------------------------------------
@@ -769,8 +775,14 @@ def main():
     t0 = time.perf_counter()
     secao_A()
     E, POL, dist = secao_C()
-    secao_B(E, POL, dist)
+    _, distg = secao_B(E, POL, dist)
     secao_D1(refazer="--refazer-rl" in sys.argv)
+    # v2 (pauta › Versão 2): heurísticas, lema, iteração de política, produtos de visualização
+    sys.modules.setdefault("derivacao", sys.modules[__name__])
+    sys.path.insert(0, str(AQUI))
+    import derivacao_v2
+    derivacao_v2.main(E, POL, dist, distg)
+    CLAIM_CHAVE.update(derivacao_v2.CLAIM_CHAVE_V2)
     RES.mkdir(exist_ok=True)
     saida = {k: ({"exato": str(v), "aprox": float(v)} if isinstance(v, Fraction) else v) for k, v in NUM.items()}
     (RES / "numeros.json").write_text(json.dumps(saida, indent=1, ensure_ascii=False, default=float), encoding="utf-8")
