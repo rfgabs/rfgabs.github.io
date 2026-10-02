@@ -1,6 +1,6 @@
 # Estratégia, Bozó e Cadeias de Markov
 
-> Estado: **v2 em andamento (2026-10-02)** — v1 escrita e validada (35 afirmações); v2 acrescenta formulação, narrativa, heurísticas e visualizações interativas. Próxima etapa: execução da v2.
+> Estado: **v2 em andamento (2026-10-02)** — v1 escrita e validada (35 afirmações); v2 acrescenta formulação, narrativa, heurísticas e visualizações interativas. Próxima etapa: validação de C39–C59, depois escrita da v2.
 
 ## Pergunta central
 
@@ -174,3 +174,8 @@ número correspondente, ou riscar alguma casa.
 | H4 | Eixo de complexidade = **"itens de cola"** (definição de `abordagens-v2.md`); curva com nº de regras como checagem | padrão provisório (supervisor) |
 | H5 | Desempate das colas: entre casas empatadas em pontos − preço, a de menor índice | padrão provisório (supervisor) |
 | H6 | Corrigir em `modelo.md` a conclusão de C28 ("diferença quase toda na marcação"): o lema mostra que as guardas respondem pela maior parte | supervisor (correção de erro) |
+| H7 | Cola (i) usa **Quina 11** (arredondamento correto de C10–C14; 141,173) | padrão provisório (supervisor) |
+| H8 | Melhor cola no texto = a de bolso (ii); busca local (141,29) citada só como prova de que há pouco a ganhar | padrão provisório (supervisor) |
+| H9 | **Entram as duas surpresas:** riscar o General piora a gulosa sozinha mas ajuda depois de outras regras (interação); Shapley negativo do preço das casas de número → "dê preço às combinações" | Gabs, 2026-10-02 |
+| H10 | "Pergunte ao ótimo" mantém as cartelas **mais prováveis** sob a ótima | Gabs, 2026-10-02 |
+| H11 | Replays entram como "partidas de exemplo", não como resultado | padrão provisório (supervisor) |
