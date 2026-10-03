@@ -1,12 +1,14 @@
 ---
 title: "Estratégia, Bozó e Cadeias de Markov"
-subtitle: "Calculei a jogada perfeita para cada lançamento do Bozó. Ela recusa Quadrada de boca e marca 1 ponto quando podia marcar 6."
+subtitle: "Calculei a jogada perfeita para cada situação do Bozó. Ela não cabe na cabeça de ninguém, então fui atrás da cola que cabe num guardanapo."
 author: "Gabs"
-date: "2026-10-02"
-categories: [jogos, probabilidade, markov]
+date: "2026-10-03"
+categories: [jogos, probabilidade, markov, programação dinâmica]
 image: thumbnail.png
 draft: true
 lang: pt-BR
+resources:
+  - dados/*.json
 ---
 
 ```{python}
@@ -18,15 +20,26 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 import yaml
+from matplotlib.patches import Circle, FancyArrowPatch
 
 sys.path.insert(0, "tools")
 
 W = Path("posts/estrategia-bozo-markov/_work")
 R = W / "resultados"
+V2 = R / "v2"
 J = json.loads((R / "numeros.json").read_text(encoding="utf-8"))
 CLAIMS = yaml.safe_load((W / "claims.yaml").read_text(encoding="utf-8"))
+
+
+def jv2(nome):
+    return json.loads((V2 / nome).read_text(encoding="utf-8"))
+
+
+CURVA = jv2("curva_colas.json")
+LEMA = jv2("diagnostico_lema.json")
+ITER = jv2("iteracao_politica.json")
+DG = jv2("distribuicao_por_general.json")
 
 
 def num(x, n=1):
@@ -49,14 +62,10 @@ def a(k):
     return v["aprox"] if isinstance(v, dict) else v
 
 
-def fr(k):
-    return Fraction(J[k]["exato"])
-
-
 CASAS = ["Ás", "Duque", "Terno", "Quadra", "Quina", "Sena",
          "Fú", "Seguida", "Quadrada", "General"]
 
-# --- uma rodada, um alvo (A) ---
+# --- degrau 1: uma rodada, um alvo ---
 p_boca = {c: a(f"p_boca_{c}") for c in ["fu", "seguida", "quadrada", "general"]}
 p_tres = {c: a(f"p3_{c}") for c in ["fu", "seguida", "quadrada", "general"]}
 p_boca_qualquer = a("p_boca_qualquer")
@@ -65,60 +74,152 @@ lanc_general = a("lancamentos_ate_general")
 sozinha = [a(f"sozinha_{i}") for i in range(10)]
 soma_sozinhas = a("soma_sozinhas")
 
-# --- o problema inteiro (C) ---
+# --- degraus 2 a 4: o MDP ---
 n_casas = 10
+n_lanc = 3
 n_cartelas = 2 ** n_casas
-n_maos = J["n_maos"]
-n_estados = J["n_estados_decisao"]
+n_maos = a("n_maos")
+n_estados = a("n_estados_decisao")
+n_pares = a("f2_n_pares")
+n_pares_marca = a("f2_n_pares_marca")
+n_pares_guarda = a("f2_n_pares_guarda")
+guardas_por_mao = a("f2_n_acoes_guarda_media")
 E_otimo = a("E_otimo")
 digitos_den = len(str(Fraction(J["E_otimo_exato"]).denominator))
 E_gulosa = a("E_gulosa")
 perda = a("perda_gulosa")
-perda_pct = J["perda_gulosa_pct"] / 100
+perda_pct = a("perda_gulosa_pct") / 100
+mc_gulosa = a("mc_gulosa_media")
+mc_gulosa_ic = J["mc_gulosa_ic99"]
 E_sem_boca = a("E_sem_boca")
 valor_boca = a("valor_boca")
 
-# C23: Quadrada de boca recusada, cartela vazia, {5,6,6,6,6}
+
+def recuperado(v):
+    """Fração do caminho gulosa -> ótimo."""
+    return (v - E_gulosa) / (E_otimo - E_gulosa)
+
+
+# --- jogadas que parecem erro (C23–C26) ---
 q_guardar_6666 = a("p1_q_otima")
 q_marcar_quadrada = a("p1_q_alt")
 vant_quadrada = a("p1_vantagem")
 pontos_quadrada_boca = 45  # regra: Quadrada (40) + boca (5)
 resto_sem_quadrada = q_marcar_quadrada - pontos_quadrada_boca
-# chance de o dado relançado (até duas vezes) virar o quinto 6: cadeia do General, estado "4 iguais"
 p_fica_4 = P[3][3]
-p_general_de_4 = 1 - p_fica_4 ** 2
-
-# C24, C25, C26
+p_general_de_4 = 1 - p_fica_4 ** 2  # duas chances de o dado relançado virar o quinto igual
 vant_fu = a("p2_vantagem")
 vant_fu_baixo = a("p2b_vantagem")
 vant_as = a("p3_vantagem")
 vant_seguida = a("p4_vantagem")
-
-# mapa de decisão (C27, C28)
-MAPA = pd.read_csv(R / "mapa_decisao_cartela_vazia.csv", dtype=str)
-MAPA["p"] = MAPA["prob_1o_lancamento"].map(lambda s: float(Fraction(s)))
-n_maos_marca = int(MAPA["otima_lanc1"].str.startswith("marca").sum())
-p_para_lanc1 = a("p_para_lanc1_vazia")
 concorda = a("concorda_gulosa_lanc1")
 
-# distribuições e casas (C20–C22, C32–C34)
-D = np.load(R / "distribuicoes.npz")
-completa_o = [J[f"otima_completa_{i}"] for i in range(10)]
-completa_g = [J[f"gulosa_completa_{i}"] for i in range(10)]
-ultima_general = J["otima_ultima_9"]
-ultima_seguida = J["otima_ultima_7"]
-p_otima_vence = J["p_otima_vence"]
-n_empates = J["n_empates"]
+# --- comportamento do ótimo (C20–C22, C33, C34, C56, C57) ---
+completa_o = [a(f"otima_completa_{i}") for i in range(10)]
+completa_g = [a(f"gulosa_completa_{i}") for i in range(10)]
+ultima_general = a("otima_ultima_9")
+ultima_seguida = a("otima_ultima_7")
+p_otima_vence = a("p_otima_vence")
+n_empates = a("n_empates")
+dg = {k: a(f"dg_{k}") for k in [
+    "otima_feito_p", "otima_feito_media", "otima_feito_moda", "otima_nao_feito_moda",
+    "otima_dif_medias", "gulosa_feito_p", "gulosa_feito_moda", "gulosa_nao_feito_moda",
+    "gulosa_dif_medias"]}
+gen_ultima = {p: a(f"ord_{p}_P10_9") for p in ["otima", "gulosa", "cola_ii"]}
+seg_primeira = {p: a(f"ord_{p}_P1_7") for p in ["otima", "gulosa", "cola_ii"]}
+rod_media = {p: [a(f"ord_{p}_rodada_media_{b}") for b in range(10)]
+             for p in ["otima", "gulosa", "cola_ii"]}
+
+# --- diagnóstico (C39–C41) ---
+lema_guarda_i = a("lema_i_grupo_guarda")
+lema_guarda_i_pct = a("lema_i_grupo_guarda_pct") / 100
+lema_guarda_ii = a("lema_ii_grupo_guarda")
+lema_guarda_ii_pct = a("lema_ii_grupo_guarda_pct") / 100
+lema_casa_i = a("lema_i_grupo_casa")
+lema_casa_ii = a("lema_ii_grupo_casa")
+lema_parada_i = a("lema_i_grupo_parada")
+lema_livres = {n: a(f"lema_i_livres_{n}") for n in range(1, 11)}
+lema_seg_gen = a("lema_i_par_Seguida->General")
+
+# --- remendos na gulosa (C42, C43) ---
+EMENDAS = ["seg4x", "quad_gen", "alvo", "risca_gen", "doispar", "fu_alto"]
+ganho_so = {e: a(f"A_ganho_{e}") for e in EMENDAS}
+so_seg4x = a("A_so_seg4x")
+FWD_A = CURVA["forward_A"]
+risca_depois = a("A_passo4_ganho")
+fu_alto_depois = a("A_passo6_ganho")
+melhor_A = a("A_passo5")
+
+# --- preços e colas (C44–C53, C55, C58) ---
+TAB = CLAIMS["colas"]["precos"]
+tab_ii = TAB["2face_8_2"]["tabela"]
+tab_i = TAB["sozinha_int"]["tabela"]
+fator_face = tab_ii[0]  # preço do Ás = fator × face 1
+assert all(tab_ii[k] == fator_face * (k + 1) for k in range(6))
+so_precos_ii = a("B_2face_8_2_so_precos")
+so_precos_ii_ganho = a("d_so_precos_ii")
+alvo_na_gulosa = a("A_alvo_ganho_gulosa")
+alvo_com_precos = a("A_alvo_ganho_2face_8_2")
+cola_i = a("B_sozinha_int_R4")
+cola_i_itens = a("B_sozinha_int_R4_itens")
+cola_i_rec = a("B_sozinha_int_R4_recuperado")
+cola_ii = a("B_2face_8_2_R4")
+cola_ii_itens = a("B_2face_8_2_R4_itens")
+cola_ii_rec = a("B_2face_8_2_R4_recuperado")
+dif_colas = a("d_cola_i_menos_ii")
+SHAP = CURVA["shapley"]
+so_numeros = a("curva_2face_comb0")
+busca_valor = a("B_busca_local_valor")
+busca_precos = J["B_busca_local_precos"]
+busca_menos_ii = a("d_busca_menos_ii")
+rec_3_itens = a("A_passo1_recuperado")
+itens_3 = FWD_A[0]["itens"]
+COLAS = {c["id"]: c for c in CURVA["colas"]}
+itens_busca = COLAS["busca_local+seg4x+quad_gen+alvo+doispar"]["itens_cola"]
+n_coalizoes = 2 ** len(SHAP["2face_8_2"])
+teto_bolso = a("C_2face_8_2")
+lema_parada_ii = a("lema_ii_grupo_parada")
+pm_r1 = [a(f"pm_rodada1_{b}") for b in range(10)]
+
+# --- quanto falta (C52, C54) ---
+teto_zero = a("C_zero")
+teto_sozinha = a("C_sozinha_exata")
+teto_sozinha_rec = a("C_sozinha_exata_recuperado")
+dentro_rodada = a("d_dentro_da_rodada")
+precos_futuro = a("d_precos_futuro")
+nao_aditivo = a("d_resto_nao_aditivo")
+teto_menos_ii = a("d_teto_menos_ii")
+pi1 = a("Cl_passo1")
+pi1_ganho = a("d_pi1_menos_gulosa")
+n_passos = a("Cl_n_passos")
 
 n_validadas = sum(1 for c in CLAIMS["claims"] if c["status"] == "validada")
-mc_otima = J["mc_otima_media"]
-mc_otima_ic = J["mc_otima_ic99"]
 
-AZUL, VERMELHO, CINZA = "#1f77b4", "#d62728", "#7f7f7f"
+# paleta: as três estratégias têm a mesma cor em todas as figuras
+AZUL, VERMELHO, LARANJA = "#1f77b4", "#d62728", "#e69f00"
+CINZA, CINZA_ESCURO = "#9e9e9e", "#555555"
+plt.rcParams.update({"font.size": 10})
 
 
 def limpa(ax):
     ax.spines[["top", "right"]].set_visible(False)
+```
+
+```{=html}
+<style>
+.cola-guardanapo { border: 2px dashed #e69f00; border-radius: 6px; padding: .8rem 1.1rem; margin: 1.2rem 0; background: #fffaf0; }
+.cola-guardanapo p:first-child { margin-top: 0; }
+.dados-form { display: flex; flex-wrap: wrap; gap: .3rem; align-items: center; }
+.dados-form > form { width: auto !important; margin: 0; }
+.dados-form .rotulo { min-width: 120px; font-size: .9em; }
+.pao-cartela { display: flex; flex-wrap: wrap; gap: .25rem; margin: .6rem 0; }
+.pao-cartela .casa { font-size: .8em; padding: .1rem .4rem; border-radius: 4px; border: 1px solid #999; }
+.pao-cartela .cheia { background: #e0e0e0; color: #888; text-decoration: line-through; border-color: #ccc; }
+.pao-dados { font-size: 2.4em; letter-spacing: .1em; line-height: 1.1; }
+.pao-tabela td, .pao-tabela th { padding: .25rem .5rem; vertical-align: top; }
+.pao-nota { font-size: .9em; color: #555; }
+button.btn-quarto { background-color: #fffaf0 !important; color: #333 !important; border: 1px solid #e69f00 !important; }
+</style>
 ```
 
 Bozó se joga com cinco dados, um copo de couro e uma cartela de dez casas.
@@ -127,16 +228,18 @@ interessam, joga o resto de novo (até três lançamentos no total) e, no fim,
 escolhe uma casa da cartela para marcar. Depois de dez rodadas a cartela
 está cheia e ganha quem somou mais.
 
-O que me intriga no Bozó é que a parte difícil não é a sorte, é a escolha.
-Saiu um par de 6 no primeiro lançamento: guardo o par ou tento a Seguida?
-Fechei a rodada com um 6 solitário: marco 6 na Sena ou queimo outra casa?
-Na mesa, a gente decide no instinto.
+A sorte é só metade do jogo. A outra metade é escolha. Saiu um par de 6 no
+primeiro lançamento: guardo o par ou tento a Seguida? Fechei a rodada com um
+6 solitário: marco 6 na Sena ou queimo outra casa? Na mesa, a gente decide
+no instinto, e o instinto parece dar conta. Mas dá mesmo? Quantos pontos ele
+deixa na mesa?
 
-Só que o Bozó é pequeno o bastante para caber inteiro num computador. Dá
-para calcular, para **qualquer** situação do jogo, qual é a jogada que
-rende mais pontos em média. Foi o que eu fiz. Neste post quero mostrar
-quanto vale jogar perfeitamente, quanto se perde jogando no instinto, e
-três ou quatro jogadas da estratégia ótima que, na mesa, pareceriam erro.
+Este post é uma ida e volta. Na ida, eu transformo o Bozó num modelo
+matemático, um degrau de cada vez, até conseguir calcular a jogada perfeita
+para qualquer situação. Aí vejo quanto ela vale e que jogadas estranhas ela
+faz. Na volta, encaro o problema: a jogada perfeita é uma tabela enorme, que
+ninguém leva para a mesa. Então procuro o que dá para levar, uma cola que
+caiba num guardanapo, e meço quanto dos pontos perdidos ela recupera.
 
 ## As regras que usamos
 
@@ -181,23 +284,38 @@ E uma curiosidade que ficou de fora das contas. Pela fonte, o jogador pode
 pedir **BAIXO** antes de levantar o copo: aí valem as faces de baixo dos
 dados. Parece uma decisão, mas não é. Num dado justo, a face de baixo é
 sete menos a de cima, e ela também tem a mesma chance de ser qualquer
-número de 1 a 6. Pedir BAIXO às cegas não muda nenhuma probabilidade. Seria
-outra história se o pedido viesse **depois** de ver os dados, como em
-algumas mesas, mas essa variante eu não calculei.
+número de 1 a 6. Pedir BAIXO às cegas não muda nenhuma probabilidade.
 
 Por último, o jogo é **solo**: um jogador tentando fazer o máximo de pontos
 em média. Contra adversários a pergunta muda, e eu volto a isso no fim.
 
-## Uma rodada, um alvo
+## O jeito de mesa
 
-Antes do jogo inteiro, vale entender uma rodada isolada. Imagine que sobrou
-uma única casa na cartela e você só quer fazer aquela combinação.
+Para ter com o que comparar, escrevi uma regra que imita o jogo no
+instinto. Chamo de **gulosa**, porque ela só olha os pontos de agora:
 
-A primeira pergunta é a chance de ela vir de boca. Aqui é contar: dos
-$6^5$ lançamentos possíveis de cinco dados, quantos têm cinco iguais,
-quantos têm quatro iguais e um diferente, e assim por diante. A segunda
-pergunta é a chance de chegar lá em até três lançamentos, separando os
-dados do melhor jeito possível:
+1. Depois de cada lançamento, vê quanto cada casa livre daria **neste
+   momento**.
+2. Se já tem uma combinação que pontua (Fú, Seguida, Quadrada ou General),
+   ou cinco iguais, para e marca a casa que dá mais pontos.
+3. Senão, guarda os dados da face que mais aparece e relança o resto.
+4. No terceiro lançamento marca a casa que dá mais pontos. Se nada pontua,
+   risca a casa de número mais baixa que estiver livre (o Ás primeiro).
+
+É mais ou menos como eu jogava. Quantos pontos ela faz em média? Daria para
+simular milhares de partidas, mas eu queria mais do que uma estimativa:
+queria o valor exato e, principalmente, saber se existe coisa melhor. Para
+isso preciso de um modelo. Vou montá-lo em quatro degraus, começando pelo
+mais simples.
+
+## Degrau 1: uma rodada, um alvo
+
+Imagine que sobrou uma única casa na cartela e você só quer fazer aquela
+combinação. A primeira pergunta é a chance de ela vir de boca. Aqui é
+contar: dos $6^5$ lançamentos possíveis de cinco dados, quantos têm cinco
+iguais, quantos têm quatro iguais e um diferente, e assim por diante. A
+segunda é a chance de chegar lá em até três lançamentos, separando os dados
+do melhor jeito possível:
 
 ```{python}
 #| echo: false
@@ -212,26 +330,70 @@ print("\n".join(linhas))
 
 O General de boca é coisa de `{python} um_em(p_boca["general"])`
 lançamentos. Mesmo jogando três vezes e separando tudo direitinho, ele sai
-em só `{python} pct(p_tres["general"], 1)` das rodadas. Já a chance de
-**alguma** combinação de boca é `{python} pct(p_boca_qualquer, 1)`.
+em só `{python} pct(p_tres["general"], 1)` das rodadas.
 
 ### O General como cadeia de Markov
 
-A conta do General em três lançamentos tem um atalho bonito. A estratégia
-óbvia (guardar os dados da face que mais aparece e relançar o resto) é a
-melhor possível para fazer General, e com ela a única coisa que importa
-entre um lançamento e outro é **quantos dados iguais você já tem**: 1, 2,
-3, 4 ou 5. Não importa se são três 2 ou três 6, nem como você chegou ali.
+A conta do General em três lançamentos tem um atalho que é o primeiro
+degrau do modelo. Para fazer General, a estratégia óbvia é guardar os dados
+da face que mais aparece e relançar o resto, e ela é a melhor possível. Com
+ela, a única coisa que importa entre um lançamento e outro é **quantos
+dados iguais você já tem**: 1, 2, 3, 4 ou 5. Não importa se são três 2 ou
+três 6, nem como você chegou ali.
 
-Essa é a propriedade de Markov: o futuro depende só do estado atual. A
-rodada vira uma caminhada entre cinco estados, e o estado "5 iguais" é
-uma armadilha da qual não se sai (você já fez o General).
+Essa é a propriedade de Markov: o futuro depende só do estado atual, e não
+do caminho até ele. Em símbolos, se $X_t$ é o número de dados iguais depois
+do lançamento $t$,
 
-::: {.callout-note collapse="true"}
-## A matriz de transição do General
+$$
+\Pr(X_{t+1}=j \mid X_t=i,\ X_{t-1},\ \dots) = P_{ij}.
+$$
 
-Na linha $i$ está o estado "tenho $i$ dados iguais", e na coluna $j$ a
-probabilidade de, depois de relançar os outros, terminar com $j$ iguais:
+Uma sequência assim se chama **cadeia de Markov**, e tudo o que ela pode
+fazer cabe numa tabela de probabilidades $P$, a matriz de transição. A
+@fig-cadeia desenha a do General.
+
+```{python}
+#| label: fig-cadeia
+#| fig-cap: "A cadeia de Markov do General. Cada círculo é o número de dados iguais que você tem; as setas mostram a chance de chegar a cada estado no lançamento seguinte (a espessura é proporcional à chance), e embaixo está a chance de continuar onde está. Do 5 não se sai."
+xs = np.arange(5) * 1.7
+r_no = 0.33
+fig, ax = plt.subplots(figsize=(7, 3.3))
+for i in range(4):
+    for j in range(i + 1, 5):
+        p = P[i][j]
+        dist = xs[j] - xs[i]
+        rad = 0.42
+        seta = FancyArrowPatch((xs[i] + 0.12, r_no), (xs[j] - 0.12, r_no),
+                               connectionstyle=f"arc3,rad=-{rad}",
+                               arrowstyle="-|>", mutation_scale=9,
+                               lw=0.6 + 5 * float(p), color=CINZA_ESCURO)
+        ax.add_patch(seta)
+        ax.text((xs[i] + xs[j]) / 2, r_no + rad * dist / 2 + 0.04,
+                f"{p.numerator}/{p.denominator}", ha="center", va="bottom",
+                fontsize=8.5, color="black",
+                bbox=dict(boxstyle="round,pad=0.12", fc="white", ec="none"))
+for i in range(5):
+    final = i == 4
+    ax.add_patch(Circle((xs[i], 0), r_no, fc="#f0f0f0" if final else "white",
+                        ec="black", lw=1.5 if final else 1))
+    ax.text(xs[i], 0, str(i + 1), ha="center", va="center", fontsize=13,
+            fontweight="bold")
+    fica = P[i][i]
+    rotulo = "General!" if final else f"fica: {fica.numerator}/{fica.denominator}"
+    ax.text(xs[i], -r_no - 0.12, rotulo, ha="center", va="top", fontsize=9)
+ax.text(xs[0] - 0.55, 0, "dados\niguais", ha="right", va="center",
+        fontsize=9, color=CINZA_ESCURO)
+ax.set_xlim(xs[0] - 1.5, xs[-1] + 0.5)
+ax.set_ylim(-0.8, r_no + 0.42 * (xs[-1] - xs[0]) / 2 + 0.35)
+ax.set_aspect("equal")
+ax.axis("off")
+fig.tight_layout()
+plt.show()
+```
+
+Em forma de matriz, com o estado de partida na linha e o de chegada na
+coluna:
 
 ```{python}
 #| echo: false
@@ -249,46 +411,60 @@ print(f"$$\nP = \\begin{{pmatrix}} {corpo} \\end{{pmatrix}}\n$$")
 
 Guardar um dado só e relançar quatro dá o mesmo que lançar os cinco (o
 dado guardado é tão aleatório quanto os outros), então a distribuição
-depois do 1º lançamento é a primeira linha de $P$, que chamo de $\pi_0$. Mais dois lançamentos são duas multiplicações por $P$:
+depois do 1º lançamento é a primeira linha de $P$, que chamo de $\pi_0$.
+Cada lançamento a mais é uma multiplicação por $P$, e a chance de General
+é a última coordenada:
 
 $$
-P(\text{General em até 3 lançamentos}) = \left(\pi_0 P^2\right)_5 .
+\Pr(\text{General em até 3 lançamentos}) = \left(\pi_0 P^2\right)_5 .
 $$
 
-Essa conta dá exatamente o mesmo valor que a busca por força bruta sobre
-todas as maneiras de separar os dados.
+Dá exatamente o mesmo valor da tabela, `{python} pct(p_tres["general"], 1)`,
+que eu tinha achado por força bruta sobre todas as maneiras de separar os
+dados. A mesma matriz responde outra pergunta de mesa: sem limite de
+lançamentos, quanto tempo leva para sair um General? Em média,
+`{python} num(lanc_general, 1)` lançamentos. Três é pouco.
+
+::: {.callout-note collapse="true"}
+## O tempo até o General
+
+Separe a matriz em $Q$ (as transições entre os estados 1 a 4, que ainda não
+são General) e o resto. O número esperado de lançamentos que a cadeia passa
+em cada estado antes de cair no 5 é dado pela **matriz fundamental**
+$N = (I - Q)^{-1}$. Somando a linha certa de $N$ (ponderada pela
+distribuição depois do 1º lançamento) e contando o próprio 1º lançamento,
+sai o tempo médio até o General.
 :::
 
-A mesma cadeia responde outra pergunta de mesa: se não houvesse limite de
-lançamentos, quanto tempo levaria para sair um General? Em média,
-`{python} num(lanc_general, 1)` lançamentos. Três é pouco.
+Repare numa coisa: nessa cadeia ninguém decide nada. A regra de jogo
+("guarde a face que mais aparece") está embutida na matriz. É isso que muda
+no próximo degrau.
 
 ### Quanto vale cada casa sozinha
 
-Probabilidade ainda não é ponto. A pergunta que interessa para o jogo é
-quantos pontos uma casa rende **em média**, se ela for a única livre e eu
-jogar a rodada só para ela.
+Antes, falta transformar probabilidade em pontos. Se uma casa é a única
+livre e eu jogo a rodada só para ela, quantos pontos ela rende em média?
 
 Nas casas de número, a conta é limpa. Se só a Sena está livre, cada dado
 vira 6 com probabilidade $1 - (5/6)^3$ (ele tem três chances, e eu guardo
 todo 6 que aparece). Com cinco dados valendo $k$ pontos cada:
 
 $$
-E[\text{casa } k] = 5k\left(1 - \left(\tfrac{5}{6}\right)^3\right).
+E[\text{casa } k \text{ sozinha}] = 5k\left(1 - \left(\tfrac{5}{6}\right)^3\right).
 $$
 
-Nas combinações, entram as probabilidades da tabela, mais o bônus de boca.
+Nas combinações entram as probabilidades da tabela, mais o bônus de boca.
 O resultado está na @fig-sozinhas.
 
 ```{python}
 #| label: fig-sozinhas
 #| fig-cap: "Pontos esperados de cada casa quando ela é a única livre e a rodada é jogada só para ela."
 fig, ax = plt.subplots(figsize=(7, 3.6))
-cores = [CINZA] * 6 + [AZUL] * 4
+cores = [CINZA] * 6 + [CINZA_ESCURO] * 4
 barras = ax.bar(CASAS, sozinha, color=cores)
 for b, v in zip(barras, sozinha):
     ax.text(b.get_x() + b.get_width() / 2, v + 0.2, num(v, 1),
-            ha="center", va="bottom", fontsize=8)
+            ha="center", va="bottom", fontsize=9)
 ax.set_ylabel("pontos esperados")
 ax.tick_params(axis="x", rotation=45)
 limpa(ax)
@@ -296,102 +472,146 @@ fig.tight_layout()
 plt.show()
 ```
 
-Duas coisas me chamaram a atenção. A Sena sozinha é a casa que mais rende,
-mais que qualquer combinação. E o General, a casa mais cobiçada da mesa,
-rende só `{python} num(sozinha[9], 1)` pontos em média quando você
-precisa dele numa rodada só: são 50 pontos multiplicados por uma chance
-pequena.
+A Sena sozinha é a casa que mais rende, mais que qualquer combinação. E o
+General, a casa mais cobiçada da mesa, rende só
+`{python} num(sozinha[9], 1)` pontos em média quando você precisa dele numa
+rodada só: são 50 pontos multiplicados por uma chance pequena.
 
-Se eu somar as dez barras, dá `{python} num(soma_sozinhas, 1)` pontos. É o
-que faria alguém que jogasse cada rodada mirando uma casa fixa, decidida
-de antemão. Guarde esse número: o jogo bem jogado vale mais que o dobro disso, e a
-diferença vem toda de **escolher a casa depois de ver os dados**.
+Somando as dez barras, dá `{python} num(soma_sozinhas, 1)` pontos. É o que
+faria alguém que jogasse cada rodada mirando uma casa decidida de antemão.
+Guarde esse número e, mais ainda, guarde essa figura. Ela reaparece duas
+vezes: daqui a pouco, como o primeiro passo da conta do jogo inteiro, e no
+fim do post, como cola.
 
-## O jeito intuitivo
+## Degrau 2: alguém decide
 
-Para ter com o que comparar, escrevi uma regra que imita o jogo no
-instinto. Chamo de **gulosa**, porque ela olha só para os pontos de agora:
+No General, a regra estava fixa. No jogo inteiro, não: a cada lançamento eu
+escolho entre marcar uma casa ou separar alguns dados, e a escolha muda o
+que pode acontecer depois. Quando uma cadeia de Markov ganha alguém que
+decide, ela vira um **processo de decisão de Markov** (MDP, na sigla em
+inglês). Um MDP tem quatro ingredientes, $(\mathcal S, \mathcal A, P, R)$:
 
-1. Depois de cada lançamento, vê quanto cada casa livre daria **neste
-   momento**.
-2. Se já tem uma combinação que pontua (Fú, Seguida, Quadrada ou General),
-   ou cinco iguais, para e marca a casa que dá mais pontos.
-3. Senão, guarda os dados da face que mais aparece e relança o resto.
-4. No terceiro lançamento marca a casa que dá mais pontos. Se nada pontua,
-   risca a casa de número mais baixa que estiver livre (o Ás primeiro).
+- **Estados** $\mathcal S$: tudo o que importa para decidir. No Bozó, um
+  estado é $(S, r, d)$: o conjunto $S$ de casas ainda livres, o número $r$
+  de lançamentos já feitos na rodada e a mão $d$ (os cinco dados, sem
+  importar a ordem; são `{python} n_maos` mãos diferentes).
+- **Ações** $\mathcal A$: marcar uma das casas livres (inclusive riscar,
+  com zero) ou, se ainda não fiz três lançamentos, guardar alguns dados e
+  relançar o resto.
+- **Transições** $P$: a chance de cada estado seguinte, dada a ação.
+  Guardar dados leva a uma nova mão, com probabilidade que sai da contagem
+  dos dados relançados. Marcar uma casa fecha a rodada e começa outra, com
+  cinco dados novos.
+- **Recompensa** $R$: os pontos da casa marcada. Guardar dados não rende
+  nada na hora.
 
-É mais ou menos como eu jogava. Com ela, o Bozó vale
-`{python} num(E_gulosa, 1)` pontos em média. Esse número é exato: não vem
-de simular partidas, e sim da mesma conta de trás para frente que uso na
-próxima seção, só que seguindo a regra em vez de escolher a melhor jogada.
+Contando tudo, são `{python} num(n_estados, 0)` situações de decisão e
+`{python} num(n_pares, 0)` pares (situação, ação):
+`{python} num(n_pares_marca, 0)` jeitos de marcar e
+`{python} num(n_pares_guarda, 0)` de guardar (em média
+`{python} num(guardas_por_mao, 1)` escolhas de guarda por mão).
 
-## A jogada perfeita, de trás para frente
+Por que isso ainda é Markov? Os pontos que já fiz não mudam nada no que vou
+fazer: eles estão no placar, ninguém tira, e o objetivo é a soma. O futuro
+depende só de quais casas sobraram, de em que lançamento estou e de quais
+dados tenho na mão. E o jogo acaba: são no máximo
+`{python} n_casas * n_lanc` decisões por partida.
 
-Agora a pergunta principal: qual é a melhor jogada em cada situação, e
-quanto o jogo vale se eu fizer sempre a melhor?
+## Degrau 3: fixe uma regra e o MDP volta a ser cadeia
 
-Parece impossível, porque toda decisão mexe com o futuro. Marcar a Sena
-agora muda o que vou poder fazer em todas as rodadas seguintes. A saída é
-uma técnica chamada **programação dinâmica**, e a ideia por trás dela cabe
-em uma frase: **resolver o jogo de trás para frente**.
+A ponte entre os dois primeiros degraus é simples. Uma **política** é uma
+regra que diz qual ação tomar em cada estado. A gulosa é uma política. Se
+eu fixo a política, ninguém mais decide nada: em cada estado a ação já está
+escrita, e as transições viram uma matriz comum de probabilidades. O MDP
+volta a ser uma cadeia de Markov, como a do General, só que bem maior.
 
-### O que importa é o que sobrou na cartela
+E uma cadeia dá para avaliar. O valor de um estado, seguindo a política
+$\pi$, é o que ela ganha agora mais a média do valor de onde ela vai
+parar:
 
-O primeiro passo é perceber o que o futuro precisa saber. Os pontos que eu
-já fiz não mudam nada no que vou fazer daqui em diante: eles estão no
-placar, ninguém tira. O que muda o futuro é **quais casas ainda estão
-livres**.
+$$
+V^\pi(s) = R\big(s,\pi(s)\big) + \sum_{s'} P\big(s' \mid s, \pi(s)\big)\, V^\pi(s').
+$$
 
-Cada uma das `{python} n_casas` casas está livre ou preenchida, então há
-$2^{10}$ = `{python} num(n_cartelas, 0)` cartelas possíveis. É só isso que
-precisa ser resolvido: para cada cartela, quantos pontos ainda dá para
-fazer, em média, jogando perfeitamente a partir dali.
+Essa é a **equação de Bellman de avaliação**. Parece um sistema enorme,
+uma equação por estado, mas no Bozó ele se resolve sozinho de trás para
+frente: toda jogada ou avança um lançamento ou fecha uma casa, então o
+valor de cada estado só depende de estados mais adiante no jogo. Basta
+começar pelo fim e voltar.
+
+Aplicando à gulosa: o Bozó jogado no instinto vale
+**`{python} num(E_gulosa, 1)` pontos** em média. É um valor exato, não uma
+simulação. (Para conferir, simulei um milhão de partidas gulosas: média
+`{python} num(mc_gulosa, 1)`, com intervalo de 99% de confiança entre
+`{python} num(mc_gulosa_ic[0], 1)` e `{python} num(mc_gulosa_ic[1], 1)`,
+que contém o valor exato.)
+
+Essa cadeia tem uma versão bem visual. Olhando só o começo de cada rodada,
+a cartela faz uma caminhada que só anda para a frente: começa sem nenhuma
+casa marcada, ganha uma marca por rodada e termina cheia. A chance de ir de
+uma cartela $S$ para $S$ sem a casa $b$ é a chance de a política marcar $b$
+naquela rodada:
+
+$$
+\Pr(S_{t+1} = S\setminus b \mid S_t = S) = \Pr(\pi \text{ marca } b \text{ na rodada} \mid S).
+$$
+
+São `{python} num(n_cartelas, 0)` cartelas possíveis, e volto a essa
+caminhada no fim do post.
+
+## Degrau 4: a equação com o max
+
+Agora a pergunta principal: qual é a melhor jogada em cada estado, e
+quanto o jogo vale se eu fizer sempre a melhor? A equação muda num lugar
+só. Em vez da ação da política, entra a melhor ação:
+
+$$
+V^*(s) = \max_{a}\Big[R(s,a) + \sum_{s'} P(s' \mid s,a)\, V^*(s')\Big].
+$$
+
+Essa é a **equação de Bellman de otimalidade**. A expressão entre
+colchetes tem nome, $Q^*(s,a)$: o valor de fazer $a$ agora e jogar
+perfeitamente depois. A jogada ótima é a que tem o maior $Q^*$.
+
+Com o max, a equação deixa de ser linear, mas o truque de começar pelo fim
+continua valendo. Resolver assim, de trás para frente, se chama
+**programação dinâmica**. E há um princípio (o princípio da otimalidade, do
+mesmo Bellman) que garante que o resultado é a melhor estratégia do jogo
+inteiro: qualquer pedaço final de uma estratégia ótima também tem que ser
+ótimo, senão daria para trocá-lo e melhorar o todo.
 
 ### Começando pelo fim
 
 A cartela mais fácil é a que tem **uma casa livre**. É a última rodada, não
-há futuro, e eu só preciso fazer o máximo naquela casa. Mas essa conta eu
-já fiz: são exatamente os valores da @fig-sozinhas. A Sena sozinha vale
+há futuro, e eu só preciso fazer o máximo naquela casa. Essa conta já está
+feita: são os valores da @fig-sozinhas. A Sena sozinha vale
 `{python} num(sozinha[5], 2)`, o General sozinho vale
 `{python} num(sozinha[9], 2)`, e assim por diante.
 
 Com duas casas livres, digamos Sena e General, eu jogo uma rodada e marco
 uma delas. Se marcar a Sena, ganho os pontos dos 6 que tenho **mais** o
-valor do General sozinho, que já está calculado. Se marcar o General,
-ganho o que ele der **mais** o valor da Sena sozinha. Escolho o maior.
-Com isso sei quanto vale a cartela "Sena e General".
+valor do General sozinho, que já está calculado. Se marcar o General, ganho
+o que ele der **mais** o valor da Sena sozinha. Escolho o maior. Com isso
+sei quanto vale a cartela "Sena e General".
 
 E assim sobe: as cartelas de três casas usam os valores das de duas, as de
 quatro usam as de três, até chegar à cartela vazia do começo do jogo. Em
-cada degrau, toda decisão se resume a comparar:
+cada degrau, toda decisão de marcar se resume a comparar:
 
 > **pontos que eu marco agora** + **valor da cartela que vai sobrar**.
 
-### Dentro da rodada, também de trás para frente
-
-Falta resolver a rodada em si, com seus três lançamentos. A ideia é a
-mesma:
-
-- **No 3º lançamento** não há mais escolha de dados. Para cada mão possível
-  (são `{python} n_maos` combinações diferentes de cinco dados, sem contar
-  a ordem), vejo qual casa dá o maior "agora + o que sobra".
-- **No 2º lançamento** posso marcar já, ou separar alguns dados e relançar.
-  Para cada escolha de dados, calculo a média do valor do 3º lançamento,
-  ponderada pela chance de cada resultado. Fico com a melhor opção.
-- **No 1º lançamento**, a mesma coisa, olhando para o 2º. É aqui que entra
-  o bônus de boca.
-
-A ação que dá o maior valor em cada situação **é** a jogada ótima. E há
-um teorema (o princípio da otimalidade de Bellman) que garante que juntar
-essas melhores escolhas locais, de trás para frente, dá a melhor estratégia
-do jogo inteiro: qualquer pedaço final de uma estratégia ótima também tem
-que ser ótimo, senão daria para trocá-lo e melhorar o todo.
+Dentro da rodada, a ideia é a mesma. No 3º lançamento não há mais escolha
+de dados: para cada mão, vejo qual casa dá o maior "agora + o que sobra".
+No 2º, posso marcar já ou separar alguns dados e relançar; para cada
+escolha de dados, calculo a média do valor do 3º lançamento, ponderada pela
+chance de cada resultado, e fico com a melhor opção. No 1º, a mesma coisa,
+olhando para o 2º (é aqui que entra o bônus de boca).
 
 ::: {.callout-note collapse="true"}
-## A equação de Bellman do Bozó
+## A equação de Bellman do Bozó, rodada a rodada
 
-Seja $S$ o conjunto de casas livres, $E^*(S)$ o valor ótimo da cartela $S$
-(com $E^*(\varnothing) = 0$), $d$ a mão atual, $\text{pts}(b, d, \text{boca})$
+Seja $E^*(S)$ o valor ótimo da cartela com casas livres $S$ (com
+$E^*(\varnothing) = 0$), $d$ a mão atual, $\text{pts}(b, d, \text{boca})$
 os pontos de marcar a casa $b$, e $T(k, d')$ a probabilidade de, guardando
 os dados $k$ e relançando o resto, chegar à mão $d'$. Dentro de uma rodada,
 com $V_r$ o valor depois do lançamento $r$:
@@ -407,12 +627,12 @@ $$
 
 $P_0(d)$ é a probabilidade da mão $d$ no primeiro lançamento. As cartelas
 são resolvidas em ordem crescente de número de casas livres, e cada uma só
-depende das menores.
+depende das menores. Trocando cada $\max$ pela ação da gulosa, a mesma
+recursão é a equação de avaliação do degrau 3.
 
-São `{python} num(n_estados, 0)` situações de decisão (cartela, lançamento,
-mão). Todas as probabilidades são frações, então dá para fazer a conta
-inteira com números racionais exatos, sem arredondar nada. O valor do jogo
-sai como uma fração cujo denominador tem `{python} digitos_den` dígitos, em
+Todas as probabilidades são frações, então dá para fazer a conta inteira
+com números racionais exatos, sem arredondar nada. O valor do jogo sai
+como uma fração cujo denominador tem `{python} digitos_den` dígitos, em
 poucos segundos de computador.
 :::
 
@@ -428,17 +648,21 @@ E aquele número de antes, `{python} num(soma_sozinhas, 0)` pontos jogando
 cada casa com alvo fixo, é menos da metade do valor ótimo. Saber **qual**
 casa marcar depois de ver os dados mais que dobra o placar.
 
-## A Quadrada que vale a pena recusar
+## O que o ótimo faz que a gente não faz
 
-A melhor forma de ver a programação dinâmica trabalhando é num lance
-concreto. Começo de jogo, cartela vazia, e o primeiro lançamento dá:
+Com a tabela de jogadas ótimas na mão, dá para procurar onde ela discorda do
+instinto. Algumas discordâncias parecem erro à primeira vista.
+
+### A Quadrada que vale a pena recusar
+
+Começo de jogo, cartela vazia, e o primeiro lançamento dá:
 
 > ⚅ ⚅ ⚅ ⚅ ⚄ (quatro 6 e um 5)
 
 É uma Quadrada de boca: 45 pontos garantidos, agora. Qualquer um marca.
 
-A estratégia ótima **não marca**. Ela guarda os quatro 6 e relança o 5.
-A comparação que ela faz é exatamente a das seções anteriores:
+A estratégia ótima **não marca**. Ela guarda os quatro 6 e relança o 5. A
+comparação que ela faz é exatamente a do degrau 4:
 
 - **Marcar a Quadrada:** 45 pontos agora + o valor ótimo da cartela sem a
   Quadrada (`{python} num(resto_sem_quadrada, 1)`) =
@@ -447,221 +671,754 @@ A comparação que ela faz é exatamente a das seções anteriores:
   resto da rodada e do jogo = **`{python} num(q_guardar_6666, 1)`**.
 
 Recusar os 45 pontos rende `{python} num(vant_quadrada, 1)` pontos a mais
-em média. Por quê? Olhe o que está em jogo. Se o dado relançado não virar 6
-em nenhuma das duas tentativas, eu continuo com quatro 6 e um avulso: a
-Quadrada ainda está lá, valendo 40 em vez de 45. Perdi 5 pontos. Se ele
-virar 6, o que acontece com chance
-`{python} f"{p_general_de_4.numerator} em {p_general_de_4.denominator}"`
-(`{python} pct(float(p_general_de_4), 0)`), eu faço o General, a casa
-mais difícil do jogo, **e a Quadrada continua livre** para outra rodada.
+em média. Por quê? Se o dado relançado não virar 6 em nenhuma das duas
+tentativas, eu continuo com quatro 6 e um avulso: a Quadrada ainda está lá,
+valendo 40 em vez de 45. Perdi 5 pontos. Se ele virar 6, o que acontece com
+chance `{python} f"{p_general_de_4.numerator} em {p_general_de_4.denominator}"`
+(`{python} pct(float(p_general_de_4), 0)`), eu faço o General, a casa mais
+difícil do jogo, **e a Quadrada continua livre** para outra rodada. Com a
+cartela vazia, a política ótima **nunca** marca Quadrada no 1º nem no 2º
+lançamento.
 
-O risco é pequeno e o prêmio é grande. Não é só esse lance: com a cartela
-vazia, a política ótima **nunca** marca Quadrada no 1º nem no 2º
-lançamento. Ela sempre tenta o General antes.
-
-Esse é o tipo de decisão que a regra gulosa não consegue ver, porque ela
-só compara pontos de agora. A programação dinâmica compara pontos de agora
-**mais o valor do que sobra**, e o valor do que sobra é bem maior quando o
-General ainda tem chance de sair.
-
-## Outras jogadas que parecem erro
-
-A Quadrada recusada não é a única surpresa. Separei mais três, todas de
-começo de jogo (cartela vazia).
+### Outras jogadas que parecem erro
 
 **Desmanchar um Fú.** Segundo lançamento: ⚀ ⚀ ⚃ ⚃ ⚃ (dois 1 e três 4).
 É um Fú, mas não de boca, então vale 20. O ótimo **não marca**: guarda os
-três 4 e relança os dois 1, apostando em algo melhor com os 4.
-A vantagem é minúscula, `{python} num(vant_fu, 2)` ponto, quase um empate.
-Com os papéis trocados, ⚀ ⚀ ⚀ ⚃ ⚃ (três 1 e dois 4), ele marca o Fú:
-uma trinca de 1 vale pouco, e insistir nela custaria
-`{python} num(vant_fu_baixo, 1)` ponto.
+três 4 e relança os dois 1. A vantagem é minúscula,
+`{python} num(vant_fu, 2)` ponto, quase um empate. Com os papéis trocados,
+⚀ ⚀ ⚀ ⚃ ⚃, ele marca o Fú: uma trinca de 1 vale pouco, e insistir nela
+custaria `{python} num(vant_fu_baixo, 1)` ponto.
 
 **Marcar 1 ponto em vez de 6.** Terceiro lançamento, nada feito:
 ⚀ ⚁ ⚂ ⚃ ⚅. A gulosa marca 6 na Sena. O ótimo marca **1 no Ás**, e ganha
 `{python} num(vant_as, 1)` pontos com isso. Gastar a Sena com um único 6 é
-desperdiçar a casa de número mais valiosa: sozinha, lá na
-@fig-sozinhas, ela vale `{python} num(sozinha[5], 1)`. O Ás vale
-`{python} num(sozinha[0], 1)`. Se é para queimar uma casa, queima-se a
-mais barata.
+desperdiçar a casa de número mais valiosa: sozinha, ela vale
+`{python} num(sozinha[5], 1)`; o Ás, `{python} num(sozinha[0], 1)`. Se é
+para queimar uma casa, queima-se a mais barata. Guarde essa ideia de casa
+"cara" e casa "barata": ela é a semente da cola.
 
 **Seguida aberta em vez de par.** Primeiro lançamento: ⚁ ⚁ ⚂ ⚃ ⚄. O
-instinto guarda o par de 2. O ótimo guarda **2-3-4-5**, que fecha a
-Seguida com um 1 ou um 6, e ganha `{python} num(vant_seguida, 1)` pontos
-com essa escolha.
+instinto guarda o par de 2. O ótimo guarda **2-3-4-5**, que fecha a Seguida
+com um 1 ou um 6, e ganha `{python} num(vant_seguida, 1)` pontos com essa
+escolha.
 
-```{python}
-#| label: tbl-exemplos
-#| tbl-cap: "Algumas decisões do 1º lançamento com a cartela vazia."
-#| echo: false
-#| output: asis
-exemplos = ["56666", "11444", "22345", "12346", "11223", "11236"]
-linhas = ["| 1º lançamento | Chance | Ótima | Gulosa |", "|---|---|---|---|"]
-for m in exemplos:
-    r = MAPA.loc[MAPA["dados"] == m].iloc[0]
-    linhas.append(f"| {' '.join(m)} | {um_em(r['p'])} | {r['otima_lanc1']} | {r['gulosa_lanc1']} |")
-print("\n".join(linhas))
+### Pergunte ao ótimo
+
+Essas quatro jogadas são só amostras. No quadro abaixo você pode montar a
+situação: escolha a cartela, o lançamento e os dados (ou sorteie), e veja o
+que fariam o ótimo, a gulosa e a cola de bolso que vou construir no fim do
+post. A **perda média** é quanto cada jogada custa em relação à ótima, em
+pontos esperados até o fim da partida, supondo jogo perfeito depois dela.
+
+As cartelas disponíveis são a do início e as mais prováveis de aparecer em
+cada rodada para quem joga o ótimo (entre parênteses, a chance de chegar
+nelas). Para começar, a Quadrada recusada já está montada; experimente
+também a cartela vazia no 3º lançamento com 1 2 3 4 6.
+
+```{ojs}
+//| echo: false
+pao = FileAttachment("dados/pergunte_ao_otimo.json").json()
+CASAS = pao.casas
+DADO = [..."⚀⚁⚂⚃⚄⚅"]
+COR = ({otima: "#1f77b4", gulosa: "#d62728", cola: "#e69f00"})
+idxMao = new Map(pao.maos.map((m, i) => [m, i]))
+fmt = (x, n) => x.toLocaleString("pt-BR", {minimumFractionDigits: n, maximumFractionDigits: n})
 ```
 
-### O mapa do primeiro lançamento
+```{ojs}
+//| echo: false
+function rotuloCartela(i) {
+  const c = pao.cartelas[i];
+  const livres = new Set(c.livres);
+  if (livres.size === 10) return "Rodada 1 · cartela vazia";
+  const marcadas = CASAS.filter((_, b) => !livres.has(b));
+  const txt = livres.size >= 5
+    ? "já preenchidas: " + marcadas.join(", ")
+    : "livres: " + c.livres.map(b => CASAS[b]).join(", ");
+  return `Rodada ${c.rodada} · ${txt} (${fmt(100 * c.prob_otima, 1)}%)`;
+}
 
-Fiz a conta para os `{python} n_maos` resultados possíveis do primeiro
-lançamento com a cartela vazia (alguns estão na @tbl-exemplos). A
-política ótima para e marca logo em `{python} n_maos_marca` deles:
-exatamente os que têm General, Fú ou Seguida de boca, o que acontece em
-`{python} pct(p_para_lanc1, 1)` das rodadas. Nos outros, ela guarda a
-quadra ou a trinca se houver, uma Seguida aberta como 2-3-4-5, três dados
-do meio quando sai tudo diferente sem Seguida (de ⚀ ⚁ ⚂ ⚃ ⚅ guarda
-2-3-4) e, nos demais casos, um par. Com dois pares, guarda só o mais alto.
+function pts(b, dados, boca) {
+  const cont = [0, 0, 0, 0, 0, 0, 0];
+  for (const d of dados) cont[d]++;
+  if (b <= 5) return (b + 1) * cont[b + 1];
+  const perfil = cont.slice(1).filter(c => c > 0).sort((x, y) => y - x).join("");
+  const faces = [...new Set(dados)].sort().join("");
+  const bonus = boca ? 5 : 0;
+  if (b === 6) return perfil === "32" ? 20 + bonus : 0;
+  if (b === 7) return (faces === "12345" || faces === "23456") ? 30 + bonus : 0;
+  if (b === 8) return perfil === "41" ? 40 + bonus : 0;
+  return perfil === "5" ? 50 + bonus : 0;
+}
 
-A @fig-mapa compara isso com a gulosa.
-
-```{python}
-#| label: fig-mapa
-#| fig-cap: "Primeiro lançamento com a cartela vazia: probabilidade de cada tipo de decisão, na política ótima e na gulosa."
-def tipo(acao):
-    verbo, alvo = acao.split(" ", 1)
-    if verbo == "marca":
-        return "marca Quadrada" if alvo == "Quadrada" else "marca General, Fú ou Seguida"
-    k = alvo
-    if len(k) == 1:
-        return "guarda um dado"
-    if len(set(k)) == 1:
-        return {2: "guarda um par", 3: "guarda a trinca", 4: "guarda a quadra"}[len(k)]
-    if len(set(k)) == len(k):
-        return "guarda 4 em sequência" if len(k) == 4 else "guarda 3 do meio"
-    return "outra"
-
-ordem = ["marca General, Fú ou Seguida", "marca Quadrada", "guarda a quadra",
-         "guarda a trinca", "guarda 4 em sequência", "guarda 3 do meio",
-         "guarda um par", "guarda um dado"]
-massa_o = MAPA.groupby(MAPA["otima_lanc1"].map(tipo))["p"].sum().reindex(ordem, fill_value=0)
-massa_g = MAPA.groupby(MAPA["gulosa_lanc1"].map(tipo))["p"].sum().reindex(ordem, fill_value=0)
-
-y = np.arange(len(ordem))
-fig, ax = plt.subplots(figsize=(7, 4))
-ax.barh(y - 0.2, massa_o, 0.4, color=AZUL, label="ótima")
-ax.barh(y + 0.2, massa_g, 0.4, color=VERMELHO, label="gulosa")
-ax.set_yticks(y, ordem)
-ax.invert_yaxis()
-ax.xaxis.set_major_formatter(lambda v, _: pct(v, 0))
-ax.set_xlabel("probabilidade no 1º lançamento")
-ax.legend(frameon=False, loc="lower right")
-limpa(ax)
-fig.tight_layout()
-plt.show()
+function descreve(acao, dados, boca) {
+  if (acao < 0) {
+    const b = -(acao + 1);
+    const p = pts(b, dados, boca);
+    return p > 0 ? `marca ${CASAS[b]} (${p} ${p === 1 ? "ponto" : "pontos"})` : `risca ${CASAS[b]} (0)`;
+  }
+  const g = pao.guardas[acao];
+  if (g === "") return "relança os cinco";
+  const n = 5 - g.length;
+  return `guarda ${g} e relança ${n} ${n === 1 ? "dado" : "dados"}`;
+}
 ```
 
-As barras quase coincidem. Ótima e gulosa tomam a mesma decisão no
-primeiro lançamento em `{python} pct(concorda, 0)` das vezes; a diferença
-está nas Quadradas de boca, nas mãos com tudo diferente e nas Seguidas
-abertas. Ou seja: o instinto separa os dados quase tão bem quanto a
-estratégia ótima. O que ele faz mal é **marcar**: gastar a Sena com um 6,
-a Quina com um 5, e ignorar a Seguida.
-
-## Ótima contra gulosa
-
-Média é só um número. A @fig-distribuicao mostra a pontuação final inteira
-das duas estratégias.
-
-```{python}
-#| label: fig-distribuicao
-#| fig-cap: "Distribuição exata da pontuação final de uma partida de Bozó solo."
-fig, ax = plt.subplots(figsize=(7, 3.8))
-ax.plot(D["pontos"], D["otima"], color=AZUL, label="política ótima")
-ax.plot(D["pontos"], D["gulosa"], color=VERMELHO, label="gulosa")
-ax.set_xlim(20, 280)
-ax.set_xlabel("pontuação final")
-ax.yaxis.set_major_formatter(lambda v, _: pct(v, 1))
-ax.set_ylabel("probabilidade")
-ax.legend(frameon=False)
-limpa(ax)
-fig.tight_layout()
-plt.show()
+```{ojs}
+//| echo: false
+viewof cartelaI = Inputs.select(pao.cartelas.map((_, i) => i), {label: "Cartela", format: rotuloCartela, value: 0})
+viewof lanc = Inputs.radio([1, 2, 3], {label: "Lançamento", format: x => `${x}º`, value: 1})
+viewof rolar = Inputs.button("Sortear dados")
+viewof dados = {
+  rolar;
+  const ini = rolar ? Array.from({length: 5}, () => 1 + Math.floor(Math.random() * 6)) : [5, 6, 6, 6, 6];
+  return Inputs.form(
+    ini.map(v => Inputs.select([1, 2, 3, 4, 5, 6], {value: v, width: 52})),
+    {template: inputs => htl.html`<div class="dados-form"><span class="rotulo">Dados</span>${inputs}</div>`}
+  );
+}
 ```
 
-As curvas não têm a forma de sino que eu esperava: têm vários picos. Com a estratégia ótima, a mediana é `{python} J["otima_mediana"]` pontos e 90% das partidas
-terminam entre `{python} J["otima_q05"]` e `{python} J["otima_q95"]`. Com a
-gulosa, a mediana é `{python} J["gulosa_mediana"]` e o intervalo vai de
-`{python} J["gulosa_q05"]` a `{python} J["gulosa_q95"]`. Os dados ainda
-mandam muito: as duas curvas se sobrepõem bastante. Se eu jogar uma partida
-ótima contra uma gulosa, venço em `{python} pct(p_otima_vence, 0)` das
-vezes, não em todas.
+```{ojs}
+//| echo: false
+{
+  const c = pao.cartelas[cartelaI];
+  const livres = new Set(c.livres);
+  const L = c.lancamentos[lanc - 1];
+  const mao = [...dados].sort((x, y) => x - y);
+  const d = idxMao.get(mao.join(""));
+  const boca = lanc === 1;
+  const linhas = [
+    ["ótima", COR.otima, L.otima[d], null],
+    ["gulosa", COR.gulosa, L.gulosa[d], L.perda_gulosa[d]],
+    ["cola de bolso", COR.cola, L.cola[d], L.perda_cola[d]]
+  ];
+  const textoPerda = p => p === null ? "—"
+    : p < 0.005 ? "0 (também é ótima)"
+    : `${fmt(p, 2)} ${p < 2 ? "ponto" : "pontos"}`;
+  return htl.html`<div class="pao">
+    <div class="pao-cartela">${CASAS.map((nome, b) => htl.html`<span class="casa ${livres.has(b) ? "livre" : "cheia"}">${nome}</span>`)}</div>
+    <div class="pao-dados">${mao.map(f => DADO[f - 1]).join(" ")}</div>
+    <table class="pao-tabela">
+      <thead><tr><th>estratégia</th><th>jogada</th><th>perda média</th></tr></thead>
+      <tbody>${linhas.map(([nome, cor, acao, perda]) => htl.html`<tr>
+        <td><b style="color:${cor}">${nome}</b></td>
+        <td>${descreve(acao, mao, boca)}</td>
+        <td>${textoPerda(perda)}</td></tr>`)}</tbody>
+    </table>
+    <p class="pao-nota">Com a jogada ótima, o resto da partida (esta rodada incluída) vale em média <b>${fmt(L.v_otima[d], 1)}</b> pontos.</p>
+  </div>`;
+}
+```
+
+Brincando um pouco com o quadro, aparece um padrão: no começo do jogo a
+gulosa quase sempre acerta. Na cartela vazia, ela e o ótimo tomam a mesma
+decisão no primeiro lançamento em `{python} pct(concorda, 0)` das vezes. As
+perdas grandes aparecem no meio e no fim da partida, quando sobram poucas
+casas. Isso vai ser importante daqui a pouco.
 
 ### O General é reserva, não meta
 
-A @fig-casas mostra com que frequência cada casa termina com pontos (e não
-riscada).
+Eu esperava que o jogo ótimo corresse atrás do General. É o contrário: a
+ótima completa o General em `{python} pct(completa_o[9], 0)` das partidas,
+**menos** que a gulosa (`{python} pct(completa_g[9], 0)`). O que ela faz é
+deixá-lo para o fim. O General é a última casa da cartela em
+`{python} pct(ultima_general, 0)` das partidas ótimas, e a Seguida em outros
+`{python} pct(ultima_seguida, 0)`. As casas difíceis viram **reserva**: se
+saírem no caminho, ótimo; se não, ficam para a última rodada, em que dá
+para jogar os três lançamentos só nelas.
+
+A Seguida mostra a outra grande diferença. A ótima completa a Seguida em
+`{python} pct(completa_o[7], 0)` das partidas; a gulosa, em só
+`{python} pct(completa_g[7], 0)`. A gulosa sempre guarda dados repetidos,
+então quase nunca monta uma sequência.
+
+O General também explica boa parte da forma da distribuição de pontos. Eu
+esperava um sino e encontrei uma curva com vários picos. A
+@fig-distribuicao separa as partidas em que o General saiu das outras: as
+partidas com General formam uma segunda montanha, em média
+`{python} num(dg["otima_dif_medias"], 0)` pontos à direita da primeira,
+mais ou menos o valor do General. Com a ótima, a montanha sem General tem o
+pico em `{python} dg["otima_nao_feito_moda"]` pontos e a com General, em
+`{python} dg["otima_feito_moda"]`; com a gulosa, em
+`{python} dg["gulosa_nao_feito_moda"]` e
+`{python} dg["gulosa_feito_moda"]`. A montanha sem General também tem mais
+de um pico.
 
 ```{python}
-#| label: fig-casas
-#| fig-cap: "Probabilidade de cada casa terminar a partida com pontos, na política ótima e na gulosa."
-x = np.arange(10)
-fig, ax = plt.subplots(figsize=(7, 3.8))
-ax.bar(x - 0.2, completa_o, 0.4, color=AZUL, label="ótima")
-ax.bar(x + 0.2, completa_g, 0.4, color=VERMELHO, label="gulosa")
-ax.set_xticks(x, CASAS, rotation=45)
-ax.yaxis.set_major_formatter(lambda v, _: pct(v, 0))
-ax.set_ylabel("chance de pontuar na casa")
-ax.legend(frameon=False, loc="lower center", bbox_to_anchor=(0.5, 1.0), ncol=2)
-limpa(ax)
+#| label: fig-distribuicao
+#| fig-cap: "Distribuição exata da pontuação final, separada pelas partidas em que o General foi feito (tom escuro) ou não (tom claro). A linha é o total."
+fig, axes = plt.subplots(2, 1, figsize=(7, 5.2), sharex=True, sharey=True)
+for ax, pol, nome, cor in [(axes[0], "otima", "ótima", AZUL), (axes[1], "gulosa", "gulosa", VERMELHO)]:
+    nf = np.array(DG[pol]["nao_feito"]["dist"])
+    fe = np.array(DG[pol]["feito"]["dist"])
+    n = max(len(nf), len(fe))
+    nf = np.pad(nf, (0, n - len(nf)))
+    fe = np.pad(fe, (0, n - len(fe)))
+    x = np.arange(n)
+    ax.fill_between(x, nf, color=cor, alpha=0.25, lw=0, label="sem General")
+    ax.fill_between(x, fe, color=cor, alpha=0.7, lw=0, label="com General")
+    ax.plot(x, nf + fe, color=cor, lw=1, label="total")
+    ax.text(0.01, 0.95, nome, transform=ax.transAxes, ha="left", va="top",
+            fontsize=11, fontweight="bold", color=cor)
+    ax.yaxis.set_major_formatter(lambda v, _: pct(v, 1))
+    ax.legend(frameon=False, fontsize=9, loc="upper right")
+    limpa(ax)
+axes[1].set_xlim(20, 270)
+axes[1].set_xlabel("pontuação final")
+fig.supylabel("probabilidade", fontsize=10)
 fig.tight_layout()
 plt.show()
 ```
 
-Duas diferenças saltam. A primeira é a **Seguida**: a ótima completa em
-`{python} pct(completa_o[7], 0)` das partidas, a gulosa em só
-`{python} pct(completa_g[7], 0)`. A gulosa sempre guarda dados repetidos,
-então quase nunca monta uma sequência. A segunda são as casas baixas: a
-gulosa risca o Ás em `{python} pct(1 - completa_g[0], 0)` das partidas,
-porque é por ele que ela começa a queimar casas.
+Os dados ainda mandam muito: as distribuições se sobrepõem bastante. Numa
+partida ótima contra uma gulosa, a ótima faz mais pontos em
+`{python} pct(p_otima_vence, 0)` das vezes, não em todas. E o bônus de
+boca, que sempre causa empolgação, vale pouco: refazendo tudo sem ele, o
+jogo ótimo cairia para `{python} num(E_sem_boca, 1)`, uma diferença de
+`{python} num(valor_boca, 1)` ponto por partida.
 
-E o **General**? Eu esperava que o jogo ótimo corresse atrás dele. É o
-contrário: a ótima completa o General em
-`{python} pct(completa_o[9], 0)` das partidas, **menos** que a gulosa
-(`{python} pct(completa_g[9], 0)`). O que ela faz é deixá-lo para o fim. O
-General é a última casa da cartela em `{python} pct(ultima_general, 0)` das
-partidas, e a Seguida em outros `{python} pct(ultima_seguida, 0)`. As casas
-difíceis viram **reserva**: se elas saírem no caminho, ótimo; se não, ficam
-para a última rodada, em que dá para jogar os três lançamentos só nelas.
+## O problema: a resposta é uma tabela
 
-### E o bônus de boca?
+Chegamos ao ótimo. E aqui está o problema: a "estratégia ótima" não é uma
+regra, é uma tabela. Para cada uma das `{python} num(n_estados, 0)`
+situações de decisão ela diz o que fazer, escolhendo entre
+`{python} num(n_pares, 0)` pares de situação e ação. Ninguém joga com isso.
+Nem eu, que fiz a conta.
 
-Por fim, uma regra que sempre causa empolgação na mesa. Quanto vale a
-boca? Refiz a conta toda sem o bônus de 5 pontos: o jogo ótimo cairia para
-`{python} num(E_sem_boca, 1)`. A boca vale `{python} num(valor_boca, 1)`
-ponto por partida. É pouco porque combinação de boca é rara, e porque,
-como vimos, a estratégia ótima às vezes abre mão dela.
+Então começa a volta para a mesa. A pergunta agora é outra: que regras
+simples, das que dá para lembrar no meio de uma partida, recuperam a maior
+parte desses `{python} num(perda, 0)` pontos? Que cola cabe num guardanapo?
+
+Tenho duas ferramentas para isso. A primeira é o degrau 3: qualquer cola
+que eu escrever é uma política, e qualquer política dá para avaliar
+exatamente. A segunda é um diagnóstico, para saber onde procurar.
+
+## Onde se perdem os `{python} num(perda, 0)` pontos
+
+Imagine que a gulosa está jogando e, a cada decisão, eu pergunto ao ótimo:
+"quanto custou esta jogada, se daqui em diante eu jogar perfeitamente?"
+Esse custo é $V^*(s) - Q^*(s, G(s))$, a diferença entre a melhor jogada e a
+da gulosa, ambas seguidas de jogo perfeito. Somando esses custos em todas as
+situações por onde a gulosa passa, cada uma ponderada pela chance $d^G(s)$
+de a gulosa passar por ela, dá **exatamente** a diferença entre as duas:
+
+$$
+E^* - E^{G} = \sum_s d^{G}(s)\,\Big[V^*(s) - Q^*\big(s, G(s)\big)\Big].
+$$
+
+Esse resultado se chama **lema da diferença de desempenho**. A graça dele é
+que cada parcela tem endereço: dá para separar os
+`{python} num(perda, 1)` pontos por tipo de decisão e por momento da
+partida. Ele tem uma versão espelhada, em que o ótimo joga e eu meço cada
+decisão com a gulosa jogando depois; a soma é a mesma, mas a divisão por
+tipo muda um pouco, então mostro as duas.
+
+::: {.callout-note collapse="true"}
+## Por que a soma dá exatamente a diferença
+
+Numa partida da gulosa, $s_0, s_1, \dots$ são os estados visitados e $a_t$ as
+ações dela. Por definição, $Q^*(s_t, a_t) = R_t + \mathbb E[V^*(s_{t+1})]$.
+Então
+
+$$
+V^*(s_0) - V^G(s_0) = \mathbb E_G\Big[\sum_t \big(V^*(s_t) - Q^*(s_t,a_t)\big)\Big],
+$$
+
+porque, somando, os termos $V^*(s_{t+1})$ se cancelam em telescópio e sobra
+$V^*(s_0)$ menos a soma das recompensas da gulosa, que em média é
+$V^G(s_0)$. Agrupando a esperança por estado aparece a probabilidade de
+visita $d^G(s)$. A versão espelhada é a mesma conta com os papéis trocados:
+$E^* - E^G = \sum_s d^*(s)\,[Q^G(s,\pi^*(s)) - V^G(s)]$. As duas foram
+calculadas em frações exatas, e as somas batem com a diferença até o último
+dígito.
+:::
+
+```{python}
+#| label: fig-diagnostico
+#| fig-cap: "Onde a gulosa perde para o ótimo. Em cima, os pontos perdidos por tipo de decisão, medidos nas partidas da gulosa (com jogo ótimo depois de cada decisão) e nas partidas do ótimo (com a gulosa jogando depois). Embaixo, a primeira medida separada pela rodada."
+def grupos(forma):
+    pc = LEMA["formas"][forma]["por_categoria"]
+    return [pc["guarda no 1º"], pc["guarda no 2º"],
+            pc["para no 1º (ótima relança)"] + pc["para no 2º (ótima relança)"],
+            pc["casa no 3º"]]
+
+rotulos = ["guarda no 1º lançamento", "guarda no 2º lançamento",
+           "parou cedo demais", "casa errada no 3º"]
+cores_g = ["#7f1416", VERMELHO, "#f4a3a3", CINZA]
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7, 5.6),
+                               gridspec_kw={"height_ratios": [1, 1.5]})
+for y, forma in [(1, "i"), (0, "ii")]:
+    esq = 0
+    for v, cor, rot in zip(grupos(forma), cores_g, rotulos):
+        ax1.barh(y, v, left=esq, color=cor, label=rot if forma == "i" else None,
+                 height=0.6)
+        if v > 1.5:
+            ax1.text(esq + v / 2, y, num(v, 1), ha="center", va="center",
+                     fontsize=9, color="white" if cor in ("#7f1416", VERMELHO, CINZA) else "black")
+        esq += v
+ax1.set_yticks([1, 0], ["partidas da\ngulosa", "partidas do\nótimo"])
+ax1.set_xlabel("pontos perdidos por partida")
+ax1.legend(frameon=False, fontsize=8.5, ncol=2, loc="lower center",
+           bbox_to_anchor=(0.5, 1.0))
+limpa(ax1)
+rod = np.arange(1, 11)
+por_rodada = [lema_livres[11 - t] for t in rod]
+ax2.bar(rod, por_rodada, color=VERMELHO)
+for t, v in zip(rod, por_rodada):
+    ax2.text(t, v + 0.08, num(v, 1), ha="center", va="bottom", fontsize=8.5)
+ax2.set_xticks(rod)
+ax2.set_xlabel("rodada")
+ax2.set_ylabel("pontos perdidos")
+limpa(ax2)
+fig.tight_layout()
+plt.show()
+```
+
+A @fig-diagnostico responde a pergunta, e a resposta me surpreendeu. Eu
+achava que a gulosa perdia marcando mal: gastando a Sena com um 6, a Quina
+com um 5. Isso pesa, mas não é o principal. **A maior parte da perda está
+nas guardas**, nos dados que ela separa:
+`{python} num(lema_guarda_i, 1)` pontos (`{python} pct(lema_guarda_i_pct, 0)`)
+pela primeira medida, `{python} num(lema_guarda_ii, 1)`
+(`{python} pct(lema_guarda_ii_pct, 0)`) pela segunda. A casa errada no 3º
+lançamento responde por `{python} num(lema_casa_i, 1)` ou
+`{python} num(lema_casa_ii, 1)`, e parar cedo demais por
+`{python} num(lema_parada_i, 1)` ou `{python} num(lema_parada_ii, 1)`.
+
+A parte de baixo confirma o que o quadro interativo sugeria: o estrago
+cresce ao longo da partida. A gulosa perde `{python} num(lema_livres[10], 1)`
+ponto na primeira rodada e `{python} num(lema_livres[2], 1)` na nona, quando
+sobram duas casas. O maior erro de marcação mora justamente aí: com a Seguida
+e o General livres e nada pontuando, a gulosa risca a Seguida (a casa de
+menor ordem na cartela) e o ótimo risca o General. Só esse tipo de erro
+custa `{python} num(lema_seg_gen, 1)` pontos por partida.
+
+O diagnóstico vira um roteiro: a cola precisa, antes de tudo, consertar as
+guardas, e não pode esquecer o fim de jogo.
+
+## Remendos na gulosa
+
+O jeito mais direto é pegar a gulosa e acrescentar regras, uma de cada vez.
+Escrevi seis emendas, guiado pelo diagnóstico e pelas jogadas estranhas do
+ótimo, e medi cada uma exatamente:
+
+```{python}
+#| echo: false
+#| output: asis
+TEXTO_EMENDA = {
+    "seg4x": "**Quatro de uma Seguida.** Com a Seguida livre e quatro faces diferentes de uma mesma Seguida, guarde essas quatro.",
+    "quad_gen": "**Quadrada com o General livre.** Não marque a Quadrada no 1º nem no 2º lançamento: guarde a quadra e tente o General.",
+    "alvo": "**Só guarde face que serve.** Guarde a face mais frequente entre as que ainda servem a alguma casa livre; sem nenhuma, jogue para a Seguida.",
+    "risca_gen": "**Risque o General primeiro.** Quando nada pontua, risque o General em vez do Ás.",
+    "doispar": "**Dois pares no 2º lançamento.** Com o Fú livre, guarde os dois pares.",
+    "fu_alto": "**Desmanche o Fú de trinca alta.** No 2º lançamento, com Quadrada ou General livres, troque um Fú com trinca de 4, 5 ou 6 pela trinca.",
+}
+for e in EMENDAS:
+    g = ganho_so[e]
+    sinal = "+" if g >= 0 else "−"
+    print(f"- {TEXTO_EMENDA[e]} Sozinha: **{sinal}{num(abs(g), 1)}** ponto{'s' if abs(g) >= 2 else ''}.")
+```
+
+A campeã, de longe, é a primeira. Só ela leva a gulosa de
+`{python} num(E_gulosa, 1)` para `{python} num(so_seg4x, 1)`. A regra mais
+valiosa do Bozó é não ignorar a Seguida: a gulosa só completa a Seguida em
+`{python} pct(completa_g[7], 0)` das partidas porque nunca guarda dados
+diferentes.
+
+Acrescentando a cada passo a emenda que mais ajuda, a sequência é esta:
+
+```{python}
+#| echo: false
+#| output: asis
+NOME_CURTO = {"seg4x": "quatro de uma Seguida", "quad_gen": "Quadrada com General livre",
+              "alvo": "só face que serve", "risca_gen": "risque o General primeiro",
+              "doispar": "dois pares no 2º", "fu_alto": "desmanche o Fú alto"}
+linhas = ["| Passo | Entra | Pontos esperados | Caminho até o ótimo |", "|---|---|---|---|",
+          f"| 0 | (gulosa) | {num(E_gulosa, 2)} | {pct(0, 0)} |"]
+for i, p in enumerate(FWD_A, start=1):
+    linhas.append(f"| {i} | {NOME_CURTO[p['emenda']]} | {num(p['valor'], 2)} "
+                  f"| {pct(recuperado(p['valor']), 0)} |")
+print("\n".join(linhas))
+```
+
+Duas surpresas aparecem aqui. A primeira é **riscar o General**. Sozinha,
+essa emenda piora a gulosa
+(`{python} "−" + num(abs(ganho_so["risca_gen"]), 1)`). Depois das três primeiras, ela
+vale `{python} "+" + num(risca_depois, 1)`. A mesma regra muda de sinal
+conforme o resto da cola. Minha leitura: a gulosa pura faz General por
+acaso, de tanto perseguir faces repetidas, e riscá-lo cedo joga isso fora;
+quando ela passa a montar Seguidas, a Seguida vira a reserva que vale a
+pena proteger no fim, e o General é que deve ir embora (é exatamente o erro
+de fim de jogo que o diagnóstico apontou).
+
+A segunda é a última linha. "Desmanche o Fú de trinca alta" é a
+generalização de uma jogada do próprio ótimo, a do Fú desmanchado. Só que
+ela tira pontos em qualquer ponto do caminho: aquela jogada só vale em
+situações bem específicas, e transformá-la em regra geral sai caro.
+
+Com remendos, a gulosa chega a `{python} num(melhor_A, 1)`, pouco mais da
+metade do caminho. Falta consertar a marcação de um jeito mais esperto.
+
+## Pontos menos preço
+
+Volte à jogada do Ás. O ótimo marcou 1 ponto em vez de 6 porque a Sena é
+"cara" e o Ás é "barato". Dá para transformar essa intuição numa regra, e
+ela sai da própria equação de Bellman.
+
+Na hora de marcar, a equação de otimalidade escolhe a casa $b$ que maximiza
+pontos agora mais o valor do que sobra:
+
+$$
+b^\star = \arg\max_{b\in S}\Big[\text{pts}(b) + E^*(S\setminus b)\Big].
+$$
+
+O problema é o $E^*$: ele é a tabela que ninguém sabe de cor. Agora suponha
+que o valor do futuro fosse uma soma simples, uma parcela por casa livre
+(mais uma constante que só depende de quantas casas sobram):
+$E^*(S') \approx c_{|S'|} + \sum_{b' \in S'} p_{b'}$. Cada casa livre "vale" $p_b$
+para o futuro. Colocando isso no lugar de $E^*$:
+
+$$
+\text{pts}(b) + E^*(S\setminus b) \approx \text{pts}(b) - p_b + \underbrace{\Big(c_{|S|-1} + \sum_{b' \in S} p_{b'}\Big)}_{\text{igual para toda casa}} .
+$$
+
+O último pedaço não depende de qual casa eu marco, então ele não muda a
+escolha. Sobra a regra:
+
+> **Marque a casa de maior pontos − preço.**
+
+O preço $p_b$ é quanto o futuro perde se eu gastar a casa $b$ agora. Não é
+uma regra inventada: é a equação de Bellman com o futuro aproximado por uma
+soma.
+
+E de onde tirar os preços? A resposta mais natural está na @fig-sozinhas.
+Na última rodada, o preço de uma casa é exatamente o valor dela jogada
+sozinha: é o que eu perderia se a gastasse antes. Ao longo da partida os
+preços de verdade mudam (na primeira rodada, por exemplo, a Quadrada custa
+`{python} num(pm_r1[8], 1)` pontos de futuro; na última,
+`{python} num(sozinha[8], 1)`), mas uma tabela fixa já captura o essencial:
+quais casas são caras e quais são baratas.
+
+Só que trocar a marcação não basta. Com os preços e as guardas da gulosa, o
+jogo vai a `{python} num(so_precos_ii, 1)`, só
+`{python} "+" + num(so_precos_ii_ganho, 1)`. Marcar melhor não salva quem
+guarda mal, como o diagnóstico já avisava. E as duas coisas interagem: a
+emenda "só guarde face que serve" vale `{python} num(alvo_na_gulosa, 1)`
+pontos na gulosa e `{python} num(alvo_com_precos, 1)` numa cola com preços,
+porque com preços a cola fecha casas de número mais cedo, e guardar dados
+de uma casa já fechada passa a ser um erro frequente.
+
+## A cola do guardanapo
+
+Juntando as duas coisas, preços para marcar e as quatro emendas de guarda
+que ajudaram, saem as duas colas protagonistas deste post. Para comparar
+colas, conto **itens**: cada teste que o jogador precisa fazer ("a Seguida
+está livre?") ou número que precisa decorar vale um item, e uma fórmula que
+gera vários números ("2 × a face") vale um só. A gulosa vale zero: é o que
+a gente já faz.
+
+- **A cola da tabela.** Os preços são os valores da @fig-sozinhas,
+  arredondados: `{python} ", ".join(f"{c} {p}" for c, p in zip(CASAS, tab_i))`.
+  Com as quatro emendas, são `{python} cola_i_itens` itens, e ela faz
+  **`{python} num(cola_i, 1)` pontos**.
+- **A cola de bolso.** A mesma ideia, com preços fáceis de lembrar: casa de
+  número custa `{python} fator_face` × a face; Fú, Seguida e Quadrada custam
+  `{python} tab_ii[6]`; o General, `{python} tab_ii[9]`. São
+  `{python} cola_ii_itens` itens, e ela faz
+  **`{python} num(cola_ii, 1)` pontos**.
+
+A diferença entre as duas é de `{python} num(dif_colas, 2)` ponto. O nível
+exato dos preços importa pouco; a estrutura importa muito. A cola de bolso
+recupera `{python} pct(cola_ii_rec, 0)` do caminho entre a gulosa e o
+ótimo. Esta é ela, inteira:
+
+::: {.cola-guardanapo}
+**A cola de bolso do Bozó**
+
+*Preços:* casa de número = `{python} fator_face` × a face. Fú, Seguida e
+Quadrada = `{python} tab_ii[6]`. General = `{python} tab_ii[9]`.
+
+*Depois de cada lançamento:*
+
+1. Para cada casa livre, faça **pontos que ela daria agora − preço**. A
+   melhor casa é a de maior saldo (empate: a que vem primeiro na cartela).
+2. **Pare e marque** a melhor casa se for o 3º lançamento, se ela for uma
+   combinação que pontua, ou se saírem cinco iguais. *Exceção:* com o
+   General livre, não pare numa Quadrada antes do 3º lançamento; guarde a
+   quadra.
+3. Senão, **guarde**:
+   - com a Seguida livre e quatro faces diferentes de uma mesma Seguida
+     (1-2-3-4-5 ou 2-3-4-5-6), essas quatro (se servem às duas, as da
+     Seguida alta);
+   - com o Fú livre e dois pares no 2º lançamento, os dois pares;
+   - nos outros casos, todos os dados da face **útil** mais frequente
+     (empate: a maior). Útil é a face cuja casa de número está livre; se
+     Fú, Quadrada ou General estiver livre, qualquer face serve;
+   - sem face útil: com a Seguida livre, um dado de cada face que serve à
+     Seguida (a baixa ou a alta, a que tiver mais em comum com a mão;
+     empate: a alta); sem a Seguida, relance os cinco.
+:::
+
+### Quem merece o crédito
+
+A cola de bolso tem seis partes: os preços das casas de número, os preços
+das combinações e as quatro emendas de guarda. Medir cada parte sozinha
+engana, porque elas interagem. Uma forma justa de dividir o ganho é o
+**valor de Shapley**, que vem da teoria dos jogos: imagino as partes
+entrando na cola uma de cada vez, em todas as ordens possíveis, e dou a
+cada uma a média do quanto ela acrescentou ao entrar. Com seis partes são
+`{python} n_coalizoes` combinações possíveis de partes, e avaliei todas
+exatamente.
+
+```{python}
+#| echo: false
+#| output: asis
+PARTES = [("precos_numeros", "preços das casas de número"),
+          ("precos_combinacoes", "preços das combinações"),
+          ("seg4x", "quatro de uma Seguida"), ("alvo", "só face que serve"),
+          ("quad_gen", "Quadrada com General livre"), ("doispar", "dois pares no 2º")]
+def sinal(v):
+    return ("+" if v >= 0 else "−") + num(abs(v), 1)
+linhas = ["| Parte | Na cola de bolso | Na cola da tabela |", "|---|---|---|"]
+for k, nome in PARTES:
+    linhas.append(f"| {nome} | {sinal(SHAP['2face_8_2'][k])} | {sinal(SHAP['sozinha_int'][k])} |")
+linhas.append(f"| **total (ganho sobre a gulosa)** | **{sinal(cola_ii - E_gulosa)}** | **{sinal(cola_i - E_gulosa)}** |")
+print("\n".join(linhas))
+```
+
+A surpresa está na primeira linha. Os preços das casas de número quase não
+ajudam na cola de bolso e, na cola da tabela, atrapalham em média. Quem
+carrega a marcação é o preço das combinações: pôr preço na Seguida, na
+Quadrada e no Fú, e quase nenhum no General. Dar preço só às casas de
+número é pior que não dar preço nenhum: a cola passa a gastar combinações à
+toa e cai para `{python} num(so_numeros, 1)`, abaixo da gulosa. A lição
+para a mesa é curta: **dê preço às combinações**.
+
+### Dá para fazer melhor com outros preços?
+
+Fiz uma busca local: partindo da cola de bolso, mexo um preço de cada vez
+em uma unidade para cima ou para baixo e fico com a melhor mudança, até
+nenhuma ajudar. (O preço do Ás fica fixo: somar a mesma constante a todos
+os preços não muda nenhuma decisão, pela conta da seção anterior.) A busca para na tabela
+`{python} ", ".join(f"{c} {p}" for c, p in zip(CASAS, busca_precos))`, com
+`{python} num(busca_valor, 2)` pontos, só `{python} num(busca_menos_ii, 2)`
+acima da cola de bolso. Isso não quer dizer que seja a melhor tabela
+possível: é um ponto de parada da busca, e outra regra de busca para em
+outro lugar. Mas indica que, com tabelas de preço nesse formato, sobra
+pouco a ganhar.
+
+### Complexidade contra pontos
+
+Ao todo avaliei `{python} a("curva_n")` colas, das mais simples às mais
+completas. A @fig-curva mostra cada uma pelo número de itens e pelos pontos
+que faz. Passe o mouse (ou o dedo) sobre os pontos para ver qual é cada
+cola.
+
+```{ojs}
+//| echo: false
+curva = FileAttachment("dados/curva_colas.json").json()
+NOME_PRECOS = ({
+  sozinha_int: "preços da tabela", "2face_8_2": "preços de bolso",
+  "2face_78112": "preços 2×face; Fú 7, Seguida 8, Quadrada 11, General 2",
+  "2face_comb0": "preço só nas casas de número", face_comb0: "preço = face, só nas casas de número",
+  "3face_78112": "preços 3×face; Fú 7, Seguida 8, Quadrada 11, General 2",
+  num0_8_2: "preço só nas combinações", sozinha_prelim: "preços da tabela (Quina 10)",
+  busca_local: "preços da busca local"
+})
+NOME_EMENDA = ({
+  seg4x: "quatro de uma Seguida", quad_gen: "Quadrada com General livre",
+  alvo: "só face que serve", risca_gen: "risque o General primeiro",
+  doispar: "dois pares no 2º", fu_alto: "desmanche o Fú alto"
+})
+ID_BOLSO = "2face_8_2+seg4x+quad_gen+alvo+doispar"
+ID_TABELA = "sozinha_int+seg4x+quad_gen+alvo+doispar"
+nomeCola = c => [c.precos ? NOME_PRECOS[c.precos] : "gulosa", ...c.regras.map(r => NOME_EMENDA[r])].join(" + ")
+viewof eixo = Inputs.radio(new Map([["itens de cola", "itens_cola"], ["número de regras", "n_regras"]]), {value: "itens_cola", label: "Complexidade em"})
+```
+
+```{ojs}
+//| echo: false
+//| label: fig-curva
+//| fig-cap: "Cada ponto é uma cola, avaliada exatamente. A escada laranja é a fronteira: o máximo de pontos possível com no máximo aquela complexidade, entre as colas testadas. As linhas horizontais são a gulosa (vermelho), o ótimo (azul) e o teto de uma rodada perfeita com preços (tracejado)."
+{
+  const pts = curva.colas.map(c => ({
+    ...c, nome: nomeCola(c), x: c[eixo],
+    pareto: eixo === "itens_cola" ? c.pareto_itens : c.pareto_regras,
+    destaque: c.id === ID_BOLSO ? "cola de bolso" : c.id === ID_TABELA ? "cola da tabela" : null
+  }));
+  const fronteira = pts.filter(d => d.pareto).sort((p, q) => p.x - q.x);
+  const dica = d => `${d.nome}\n${fmt(d.valor, 2)} pontos · ${d.itens_cola} itens · ${d.n_regras} ${d.n_regras === 1 ? "regra" : "regras"}`;
+  const xmax = d3.max(pts, d => d.x);
+  const teto = curva.tetos_nao_executaveis.rodada_perfeita_sozinha_exata;
+  const refs = [
+    {y: curva.E_otimo, rot: "ótimo (a tabela inteira)", cor: COR.otima, tr: null, dy: -7},
+    {y: teto, rot: "rodada perfeita com preços", cor: "#777", tr: "4,3", dy: 11},
+    {y: curva.E_gulosa, rot: "gulosa", cor: COR.gulosa, tr: null, dy: -7}
+  ];
+  return Plot.plot({
+    width, height: 420, marginLeft: 48, marginRight: 12,
+    x: {label: eixo === "itens_cola" ? "itens de cola →" : "número de regras →", grid: true},
+    y: {label: "↑ pontos esperados por partida", domain: [114, 149], grid: true},
+    marks: [
+      ...refs.map(r => Plot.ruleY([r.y], {stroke: r.cor, strokeDasharray: r.tr, strokeWidth: 1.5})),
+      ...refs.map(r => Plot.text([r], {x: () => xmax, y: "y", text: "rot", textAnchor: "end", dy: r.dy, fill: r.cor, fontSize: 11})),
+      Plot.line(fronteira, {x: "x", y: "valor", curve: "step-after", stroke: COR.cola, strokeWidth: 2}),
+      Plot.dot(pts.filter(d => !d.destaque), {x: "x", y: "valor", r: 4,
+        fill: d => d.pareto ? "#c98a00" : "#b0b0b0", stroke: "white", title: dica, tip: true}),
+      Plot.dot(pts.filter(d => d.destaque), {x: "x", y: "valor", r: 7,
+        fill: COR.cola, stroke: "black", title: dica, tip: true}),
+      Plot.text(pts.filter(d => d.destaque), {x: "x", y: "valor", text: "destaque", dy: 17, fontWeight: "bold", fill: COR.cola, stroke: "white", strokeWidth: 3, paintOrder: "stroke", fontSize: 11})
+    ]
+  });
+}
+```
+
+A curva tem a forma clássica dos rendimentos decrescentes. Os
+`{python} itens_3` primeiros itens (a regra da Seguida) já recuperam
+`{python} pct(rec_3_itens, 0)` do caminho. Os
+`{python} cola_ii_itens` itens da cola de bolso chegam a
+`{python} pct(cola_ii_rec, 0)`. Daí para a frente, mais
+`{python} itens_busca - cola_ii_itens` itens (uma tabela inteira de preços)
+rendem só `{python} num(busca_menos_ii, 2)`. E
+trocar a medida de complexidade por "número de regras" não muda a
+história: a fronteira passa pelas mesmas colas.
+
+### A caminhada da cartela, de novo
+
+Lembra da caminhada da cartela, no degrau 3? Cada política faz a cartela
+andar de um jeito, e o jeito mostra a personalidade de cada uma. A
+@fig-ordem mostra em que rodada cada casa costuma ser preenchida (marcada
+ou riscada).
+
+```{ojs}
+//| echo: false
+ordem = FileAttachment("dados/ordem_preenchimento.json").json()
+viewof polOrdem = Inputs.radio(new Map([["ótima", "otima"], ["gulosa", "gulosa"], ["cola de bolso", "cola_ii"]]), {value: "gulosa", label: "Estratégia"})
+```
+
+```{ojs}
+//| echo: false
+//| label: fig-ordem
+//| fig-cap: "Chance de cada casa ser preenchida (marcada ou riscada) em cada rodada, para a estratégia escolhida, em %. Cada linha soma 100%."
+{
+  const cor = {otima: COR.otima, gulosa: COR.gulosa, cola_ii: COR.cola}[polOrdem];
+  const celulas = ordem.casas.flatMap((casa, b) =>
+    ordem[polOrdem].P[b].map((p, t) => ({casa, rodada: t + 1, p})));
+  const pmax = d3.max(["otima", "gulosa", "cola_ii"].flatMap(k => ordem[k].P.flat()));
+  return Plot.plot({
+    width, height: 360, marginLeft: 70,
+    x: {label: "rodada", type: "band", domain: d3.range(1, 11)},
+    y: {label: null, domain: ordem.casas},
+    color: {type: "linear", domain: [0, pmax], range: ["#ffffff", cor], legend: true,
+            label: "chance de preencher nesta rodada", tickFormat: "%"},
+    marks: [
+      Plot.cell(celulas, {x: "rodada", y: "casa", fill: "p", inset: 0.5,
+        title: d => `${d.casa}, rodada ${d.rodada}: ${fmt(100 * d.p, 1)}%`, tip: true}),
+      Plot.text(celulas.filter(d => d.p >= 0.1), {x: "rodada", y: "casa",
+        text: d => `${Math.round(100 * d.p)}`, fill: d => d.p > 0.4 ? "white" : "black", fontSize: 10})
+    ]
+  });
+}
+```
+
+A gulosa gasta as casas altas cedo (a Sena é preenchida, em média, na
+rodada `{python} num(rod_media["gulosa"][5], 1)`) e empurra o General para
+a última rodada em `{python} pct(gen_ultima["gulosa"], 0)` das partidas, só
+porque ele é o último da ordem de riscar. A ótima deixa o General para o
+fim em `{python} pct(gen_ultima["otima"], 0)` das partidas, como reserva. A
+cola de bolso faz uma coisa diferente das duas: como o General tem preço
+baixo, ela o risca bem antes (só `{python} pct(gen_ultima["cola_ii"], 0)`
+das partidas chegam à última rodada com ele livre) e fecha a Seguida
+cedo (`{python} pct(seg_primeira["cola_ii"], 0)` das vezes já na primeira
+rodada, contra `{python} pct(seg_primeira["otima"], 0)` da ótima). Ela não
+imita o ótimo; ela chega perto dele por outro caminho.
+
+## Quanto ainda falta
+
+A cola de bolso fica a `{python} num(E_otimo - cola_ii, 1)` pontos do
+ótimo. Onde está essa diferença? Para separar, imagino um jogador
+impossível: ele usa a mesma ideia de preços, mas joga cada rodada com
+perfeição, escolhendo as guardas por programação dinâmica para maximizar a
+média de pontos − preço na rodada. Não dá para fazer isso de cabeça, mas dá
+para calcular quanto vale.
+
+Sem preço nenhum, só jogando cada rodada perfeitamente para os pontos dela,
+ele faz `{python} num(teto_zero, 1)`. Com os preços "sozinha" da
+@fig-sozinhas, faz `{python} num(teto_sozinha, 1)`,
+`{python} pct(teto_sozinha_rec, 0)` do caminho. Isso decompõe a distância
+inteira entre a gulosa e o ótimo:
+
+- **jogar bem dentro da rodada:** `{python} num(dentro_rodada, 1)` pontos;
+- **dar preço ao futuro:** mais `{python} num(precos_futuro, 1)`;
+- **o que uma soma de preços não captura:** os últimos
+  `{python} num(nao_aditivo, 2)`.
+
+A soma de preços é uma aproximação muito boa do futuro. E os preços
+simplificados da cola de bolso também: com eles, o jogador perfeito na
+rodada ainda faria `{python} num(teto_bolso, 1)`. Ou seja, quase toda a
+distância entre a cola de bolso e esse teto vem de trocar a programação
+dinâmica das guardas por quatro regras que cabem num guardanapo.
+
+### Cinco voltas até o ótimo
+
+Há um último caminho de volta, que parte da própria gulosa. Chama-se
+**iteração de política**: avalio a política atual (degrau 3) e, em cada
+cartela, jogo a rodada de forma ótima supondo que daí em diante sigo a
+política atual. Isso dá uma política nova, que nunca é pior que a anterior
+(é um teorema), e repito.
+
+```{python}
+#| echo: false
+#| output: asis
+linhas = ["| Volta | Pontos esperados | Caminho até o ótimo | Cartelas já ótimas |",
+          "|---|---|---|---|"]
+for p in ITER["passos"]:
+    nome = "0 (gulosa)" if p["passo"] == 0 else str(p["passo"])
+    linhas.append(f"| {nome} | {num(p['valor'], 2)} | {pct(recuperado(p['valor']), 1)} "
+                  f"| {num(p['cartelas_com_E_igual_otimo'], 0)} de {num(n_cartelas - 1, 0)} |")
+print("\n".join(linhas))
+```
+
+Uma única volta, uma aplicação da equação de Bellman sobre a gulosa, já
+recupera `{python} num(pi1_ganho, 1)` dos `{python} num(perda, 1)` pontos.
+Em `{python} n_passos` voltas a política coincide com a ótima em todas as
+cartelas, exatamente. A ironia é que a primeira volta, que já supera
+qualquer cola, também é uma tabela gigante. Pensar sobre o jogo resolve o
+jogo; levar a resposta para a mesa é outra história.
 
 ## O que a matemática não responde
 
 Algumas simplificações pesam nesses números:
 
 - **O jogo é solo.** Maximizar a média de pontos não é o mesmo que
-  maximizar a chance de ganhar. Se o adversário está muito na frente,
-  vale arriscar mais; se eu estou na frente, vale jogar seguro. Para isso
-  o estado teria que incluir os placares, e o problema fica bem maior.
+  maximizar a chance de ganhar. Se o adversário está muito na frente, vale
+  arriscar mais; se eu estou na frente, vale jogar seguro. Para isso o
+  estado teria que incluir os placares, e o problema fica bem maior.
 - **A melhor jogada nem sempre é única.** Em
   `{python} num(n_empates, 0)` situações há duas ou mais jogadas que valem
   exatamente o mesmo. Escolhi um critério de desempate; o valor do jogo e
   as distribuições não mudam com o critério.
-- **A gulosa é uma tradução possível do instinto.** Outra regra, por
-  exemplo riscar o General primeiro quando nada pontua, daria outro
-  número.
+- **A gulosa é uma tradução possível do instinto.** Outra regra daria outro
+  número, e jogadores experientes provavelmente já fazem algumas das
+  emendas sem pensar.
+- **As colas são uma família que eu escolhi.** As emendas vieram do
+  diagnóstico e das jogadas estranhas do ótimo; outra lista daria outra
+  curva, e pode existir uma cola curta de outro formato (uma árvore de
+  decisão, por exemplo) que faça melhor. A contagem de itens também é uma
+  convenção, embora contar regras dê a mesma conclusão.
 - **As regras são uma versão.** General de boca como vitória imediata,
   BAIXO pedido depois de ver os dados ou riscar só quando não há opção
-  mudariam a estratégia ótima.
+  mudariam a estratégia ótima e as colas.
 
 Cada número deste post foi conferido de forma independente:
 `{python} n_validadas` afirmações recalculadas por outro código, a maioria
-também por simulação. Por exemplo, um milhão de partidas simuladas com a
-estratégia ótima dão média `{python} num(mc_otima, 1)`, com intervalo de
-99% de confiança entre `{python} num(mc_otima_ic[0], 1)` e
-`{python} num(mc_otima_ic[1], 1)`, que contém o valor exato.
+também por simulação.
 
 Fica uma pergunta que a conta não resolve: um computador que **só joga**,
-sem conhecer a fórmula, conseguiria descobrir essas jogadas sozinho? Esse é
-assunto para um próximo post.
+sem conhecer as equações, conseguiria descobrir essas jogadas sozinho?
+Esse é assunto para um próximo post.
 
 E você: na sua mesa, quem tira Quadrada de boca no primeiro lançamento
-marca na hora, ou tenta o General?
+marca na hora ou tenta o General? E que regra da sua cola de cabeça ficou
+de fora daqui?
