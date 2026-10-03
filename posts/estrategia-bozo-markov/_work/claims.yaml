@@ -952,9 +952,22 @@ claims:
   valor: 5165409772009703318950414541936383604605686605943448696597556837250155045072534206893366093770910985/357024182825344558101492177689829289483801686226047499111539105580545315216761100364652774783188992
   valor_num: 14.4679548907101
   derivacao: modelo.md#c39
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: 'forma (i): V*(s)-Q*(s,G(s)) ponderada por visitação da gulosa (visitação por fluxo, Q* da
+      minha DP) + MC literal 1e6 (acumula os termos ao longo de partidas gulosas)'
+    n: 1000000
+    estimativa: soma 26.063343099 (C30 26.063343099); g1 8.727112, g2 5.740843, p2 1.761433, p1 0.273237,
+      c3 9.560718; guardas 14.467955; MC total 26.0708
+    ic: '[26.0521; 26.0894]'
+    nota: 'outras células |.|=0.0e+00; MC dentro do IC nas 5 partes: True'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: 'forma (i): V*(s)-Q*(s,G(s)) ponderada por visitação da gulosa (visitação por fluxo, Q* da minha
+      DP) + MC literal 1e6 (acumula os termos ao longo de partidas gulosas) | outras células |.|=0.0e+00;
+      MC dentro do IC nas 5 partes: True'
 - id: C40
   enunciado: 'Lema da diferença de desempenho, forma (ii), ótima × gulosa G1–G4 (notação de C39): d*(s)
     = probabilidade de a política ótima (desempate H6) passar por s; V^G(s) = valor de seguir a gulosa
@@ -969,9 +982,22 @@ claims:
   valor: 745354731884870820574335845018387597968838690653177986077595675261685429428202866359831713504932815/35261647686453783516196758290353510072474240614918271517189047464745216317704800036015088867475456
   valor_num: 21.1378304982387
   derivacao: modelo.md#c40
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: 'forma (ii): Q^G(s,pi*(s))-V^G(s) ponderada por visitação da ótima (Q^G e V^G por Bellman
+      de avaliação) + MC literal 1e6 (partidas da ótima)'
+    n: 1000000
+    estimativa: soma 26.063343099; g1 10.918087, g2 10.219743, p2 2.117441, p1 0.021142, c3 2.786930;
+      guardas 21.137830; MC total 26.0684
+    ic: '[26.0318; 26.105]'
+    nota: 'outras células |.|=3.6e-15; MC dentro do IC nas 5 partes: True'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: 'forma (ii): Q^G(s,pi*(s))-V^G(s) ponderada por visitação da ótima (Q^G e V^G por Bellman de
+      avaliação) + MC literal 1e6 (partidas da ótima) | outras células |.|=3.6e-15; MC dentro do IC nas
+      5 partes: True'
 - id: C41
   enunciado: 'Forma (i) do lema (C39), por nº de casas livres no início da rodada: 10 livres 1,1706; 9
     livres 1,3527; 8 livres 1,6039; 7 livres 1,8831; 6 livres 2,1473; 5 livres 2,4213; 4 livres 2,9278;
@@ -984,9 +1010,24 @@ claims:
   valor: 13038204014973283105335931963828267996758141812242280858457218228287109375/4491048329399862202594925601200218806613446092200175883451809238427369472
   valor_num: 2.90315379810566
   derivacao: modelo.md#c41
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: forma (i) decomposta por nº de casas livres no início da rodada e por par (casa gulosa ->
+      casa ótima) no 3º lançamento
+    n: null
+    estimativa: 'por n livres: 10:1.1706, 9:1.3527, 8:1.6039, 7:1.8831, 6:2.1473, 5:2.4213, 4:2.9278,
+      3:4.0508, 2:6.9926, 1:1.5134; Seguida->General 2.903154, Sena->Ás 1.1711, Quina->Ás 1.0167, Quadra->Ás
+      0.6607, Quadrada->General 0.5201, Fú->General 0.4185'
+    ic: exato (float64, tol 1e-9); soma por n == C30; soma dos pares == parcela c3 de C39
+    nota: 'top-6 de pares == afirmados: True; reaproveita a visitação validada em C39 (MC total dentro
+      do IC)'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: 'forma (i) decomposta por nº de casas livres no início da rodada e por par (casa gulosa -> casa
+      ótima) no 3º lançamento | top-6 de pares == afirmados: True; reaproveita a visitação validada em
+      C39 (MC total dentro do IC)'
 - id: C42
   enunciado: 'Gulosa G1–G4 + uma única emenda (Colas definidas em claims.yaml › colas): valor esperado
     exato da cola ''gulosa+seg4x'' (Seguida livre e 4 faces diferentes de uma mesma Seguida no 1º/2º lançamento
@@ -997,9 +1038,23 @@ claims:
   valor: 135334111111427246103982640839506032984201038333723661354489274423295/1056337469587372399427905826140676671214077877930046769879396122624
   valor_num: 128.11635959888
   derivacao: modelo.md#c42
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: Bellman de avaliação da cola (jogador vetorizado a partir do texto; conferido contra jogador
+      escalar independente) + MC literal 1e6 por cola
+    n: 1000000
+    estimativa: gulosa+seg4x 128.116360; ganhos seg4x +7.4513, quad_gen +2.0948, alvo +2.8359, risca_gen
+      -0.6637, doispar +0.6769, fu_alto -0.8041
+    ic: 'MC: seg4x 128.084 [127.998; 128.17]; quad_gen 122.790 [122.705; 122.875]; alvo 123.479 [123.386;
+      123.573]; risca_gen 119.998 [119.92; 120.075]; doispar 121.387 [121.304; 121.469]; fu_alto 119.891
+      [119.806; 119.975]'
+    nota: 'MC dentro do IC99 em 6/6 (+gulosa: True)'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: 'Bellman de avaliação da cola (jogador vetorizado a partir do texto; conferido contra jogador
+      escalar independente) + MC literal 1e6 por cola | MC dentro do IC99 em 6/6 (+gulosa: True)'
 - id: C43
   enunciado: 'Seleção forward a partir da gulosa G1–G4 sobre as 6 emendas de claims.yaml › colas (a cada
     passo entra a emenda cujo acréscimo dá o maior valor exato): +seg4x (itens 3) 128,1164; +quad_gen
@@ -1011,9 +1066,21 @@ claims:
   valor: 212121166241422160413655432336437812828890580605174826654092096794269249271747465/1569735164349596636316058902401373545121166949858297209055454774664405790490624
   valor_num: 135.131817811645
   derivacao: modelo.md#c43
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: seleção forward refeita com minha avaliação exata (6 passos, 36 colas avaliadas) + MC literal
+      1e6 por passo
+    n: 1000000
+    estimativa: 'caminho: +seg4x 128.1164 (itens 3), +quad_gen 130.2412 (itens 5), +alvo 131.6100 (itens
+      7), +risca_gen 134.0498 (itens 8), +doispar 135.1318 (itens 11), +fu_alto 134.6547 (itens 14)'
+    ic: 'MC: 128.084; 130.205; 131.641; 134.057; 135.152; 134.639'
+    nota: melhor = passo 5 135.131817812; MC dentro do IC 6/6
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: seleção forward refeita com minha avaliação exata (6 passos, 36 colas avaliadas) + MC literal
+      1e6 por passo | melhor = passo 5 135.131817812; MC dentro do IC 6/6
 - id: C44
   enunciado: 'Interação: ganho exato da emenda alvo sobre a gulosa G1–G4 = 2,835866; sobre a cola ''2face_8_2''
     sem emendas (marcação por pontos − preço, preços 2×face / 8 / 2) = 10,697723 (valor); sobre ''sozinha_int''
@@ -1023,9 +1090,19 @@ claims:
   valor: 4700851045455844470906510060394054236382378272989773195717159239309967496942263551115/439425382967368683983772264902630904727038991275532287514147787800455099366783320064
   valor_num: 10.6977230439256
   derivacao: modelo.md#c44
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: diferenças de valores exatos (Bellman de avaliação) + MC literal 1e6 de cada cola envolvida
+    n: 1000000
+    estimativa: alvo/gulosa 2.835866; alvo/2face_8_2 10.697723; alvo/sozinha_int 11.062990
+    ic: 'MC: 123.479; 123.035; 133.683; 123.004; 134.011'
+    nota: MC dentro do IC 5/5
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: diferenças de valores exatos (Bellman de avaliação) + MC literal 1e6 de cada cola envolvida
+      | MC dentro do IC 5/5
 - id: C45
   enunciado: 'Cola protagonista (i) ''sozinha_int+seg4x+quad_gen+alvo+doispar'' (Colas definidas em claims.yaml
     › colas; preços Ás 2, Duque 4, Terno 6, Quadra 8, Quina 11, Sena 13, Fú 7, Seguida 8, Quadrada 11,
@@ -1036,9 +1113,19 @@ claims:
   valor: 2363779055198386919484112659338002346994123964058420669013501492443354065472137135/16743841753062364120704628292281317814625780798488503563258184263086995098566656
   valor_num: 141.173040814607
   derivacao: modelo.md#c45
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: Bellman de avaliação da cola (i) + MC literal 1e6
+    n: 1000000
+    estimativa: 'sozinha_int+seg4x+quad_gen+alvo+doispar: exato 141.173040815; itens 21; 78.69% do caminho
+      C29->C17; MC 141.1744'
+    ic: '[141.091; 141.258]'
+    nota: '|exato - afirmado| = 1.14e-13'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: Bellman de avaliação da cola (i) + MC literal 1e6 | |exato - afirmado| = 1.14e-13
 - id: C46
   enunciado: 'Cola protagonista (ii) ''2face_8_2+seg4x+quad_gen+alvo+doispar'' (Colas definidas em claims.yaml
     › colas; preço da casa de número = 2 × a face, Fú/Seguida/Quadrada 8, General 2; 14 itens de cola):
@@ -1048,9 +1135,19 @@ claims:
   valor: 98442554551492915922652825780716448332107051231434897245137938303403325512244065/697660073044265171696026178845054908942740866603687648469091010961958129106944
   valor_num: 141.103896231205
   derivacao: modelo.md#c46
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: Bellman de avaliação da cola (ii) + MC literal 1e6
+    n: 1000000
+    estimativa: '2face_8_2+seg4x+quad_gen+alvo+doispar: exato 141.103896231; itens 14; 78.42% do caminho
+      C29->C17; MC 141.0774'
+    ic: '[140.994; 141.161]'
+    nota: '|exato - afirmado| = 5.68e-14'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: Bellman de avaliação da cola (ii) + MC literal 1e6 | |exato - afirmado| = 5.68e-14
 - id: C47
   enunciado: 'Só a marcação por preço, sem emendas (guardas da gulosa G4): cola ''2face_8_2'' = 123,012426
     (valor; 4 itens); cola ''sozinha_int'' = 122,968115 (11 itens). Contra C29 = 120,665037. Colas definidas
@@ -1060,9 +1157,20 @@ claims:
   valor: 2946425340271236328667622904904167590131902456074437656156851585720744320815/23952257756799265080506269873067833635271712491734271378409649271612637184
   valor_num: 123.012426226703
   derivacao: modelo.md#c47
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: Bellman de avaliação (guardas G4, marcação por pontos - preço) + MC literal 1e6
+    n: 1000000
+    estimativa: 2face_8_2 123.012426227 (MC 123.0350); sozinha_int 122.968115036 (MC 123.0037); itens
+      (4, 11)
+    ic: '[122.959; 123.111]; [122.928; 123.079]'
+    nota: contra gulosa 120.665037
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: Bellman de avaliação (guardas G4, marcação por pontos - preço) + MC literal 1e6 | contra gulosa
+      120.665037
 - id: C48
   enunciado: 'Valor de Shapley exato (6 jogadores, 64 coalizões avaliadas exatamente) das partes da cola
     (ii): jogadores = preços das casas de número (2×face; ausente = preço 0), preços das combinações (8,
@@ -1075,9 +1183,20 @@ claims:
   valor: 269225437349262177857961861166165022639142107260921784275308829705268478720157160449315/47457941360475817870247404609484137710520211057757487051527961082449150731612598566912
   valor_num: 5.67292700929248
   derivacao: modelo.md#c48
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: Shapley exato com 64 coalições avaliadas por Bellman de avaliação + MC literal 1e6 em 4 coalições
+    n: 1000000
+    estimativa: 'φ: num 1.2743, comb 5.1980, alvo 5.2608, seg4x 5.6729, quad_gen 2.0457, doispar 0.9870;
+      soma 20.438859 = v(cheia)-v(vazia) 20.438859'
+    ic: 'MC coalições: 116.789; 120.056; 129.247; 139.972'
+    nota: '|φ_seg4x - valor| = 1.33e-14; MC dentro do IC 4/4'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: Shapley exato com 64 coalições avaliadas por Bellman de avaliação + MC literal 1e6 em 4 coalições
+      | |φ_seg4x - valor| = 1.33e-14; MC dentro do IC 4/4
 - id: C49
   enunciado: 'Valor de Shapley exato, como em C48, para a cola (i) (preços de número 2, 4, 6, 8, 11, 13;
     de combinações 7, 8, 11, 2): precos_numeros -0,8005; precos_combinacoes 7,3820; alvo 5,6062; seg4x
@@ -1088,9 +1207,20 @@ claims:
   valor: 1401340976703629390671616696777012694356488952510260698442318906528466073195740494694495/189831765441903271480989618437936550842080844231029948206111844329796602926450394267648
   valor_num: 7.38201519351354
   derivacao: modelo.md#c49
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: Shapley exato com 64 coalições avaliadas por Bellman de avaliação + MC literal 1e6 em 4 coalições
+    n: 1000000
+    estimativa: 'φ: num -0.8005, comb 7.3820, alvo 5.6062, seg4x 5.3714, quad_gen 2.0152, doispar 0.9337;
+      soma 20.508003 = v(cheia)-v(vazia) 20.508003'
+    ic: 'MC coalições: 113.243; 120.580; 129.247; 140.083'
+    nota: '|φ_comb - valor| = 1.78e-14; MC dentro do IC 4/4'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: Shapley exato com 64 coalições avaliadas por Bellman de avaliação + MC literal 1e6 em 4 coalições
+      | |φ_comb - valor| = 1.78e-14; MC dentro do IC 4/4
 - id: C50
   enunciado: 'Seleção forward a partir da cola ''2face_8_2'' sem emendas (123,0124) sobre alvo, seg4x,
     quad_gen, doispar, fu_alto: +alvo 133,7101; +seg4x 138,0744; +quad_gen 139,9576; +doispar 141,1039;
@@ -1100,9 +1230,19 @@ claims:
   valor: 58755633549869851793245407849797390678970038295153067303048909078179088582655407113355/439425382967368683983772264902630904727038991275532287514147787800455099366783320064
   valor_num: 133.710149270628
   derivacao: modelo.md#c50
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: seleção forward refeita (5 passos, 15 colas) + MC literal 1e6 por passo
+    n: 1000000
+    estimativa: +alvo 133.7101; +seg4x 138.0744; +quad_gen 139.9576; +doispar 141.1039; +fu_alto 140.6065
+    ic: 'MC: 133.683; 138.083; 139.972; 141.077; 140.600'
+    nota: MC dentro do IC 5/5; passo 1 = 133.710149271
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: seleção forward refeita (5 passos, 15 colas) + MC literal 1e6 por passo | MC dentro do IC 5/5;
+      passo 1 = 133.710149271
 - id: C51
   enunciado: 'Busca local nos preços inteiros com as emendas R4 (Ás fixo em 2, pois somar uma constante
     a todos os preços não muda a cola; vizinhos = ±1 em um dos outros 9 preços), partindo de 2face_8_2:
@@ -1113,9 +1253,27 @@ claims:
   valor: 9463110435220452138069388030842825993008664538612649497858741436260468213327805375/66975367012249456482818513169125271258503123193954014253032737052347980394266624
   valor_num: 141.292401331518
   derivacao: modelo.md#c51
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: avaliação exata da tabela e dos 18 vizinhos (±1 em 9 preços) + subida de encosta refeita +
+      MC literal 1e6
+    n: 1000000
+    estimativa: 'ótimo local [2, 4, 6, 8, 10, 13, 5, 7, 8, 3]: exato 141.292401332; melhor vizinho 141.292401;
+      steepest termina em [2, 4, 6, 8, 10, 13, 5, 7, 8, 3] (141.292401) após 6 passos; primeira-melhora
+      termina em [2, 3, 5, 8, 10, 13, 6, 7, 8, 2] (141.308123); MC 141.2232'
+    ic: '[141.14; 141.307]'
+    nota: 'nenhum dos 18 vizinhos com valor maior: True (empates exatos com o ótimo: 1; max(viz)-v = 0.00e+00);
+      busca steepest refeita chega à mesma tabela: True; atenção: a variante primeira-melhora acha outro
+      ótimo local (141.308123 > 141.292401), então ''141,29'' é ótimo LOCAL dependente da regra de busca'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: 'avaliação exata da tabela e dos 18 vizinhos (±1 em 9 preços) + subida de encosta refeita +
+      MC literal 1e6 | nenhum dos 18 vizinhos com valor maior: True (empates exatos com o ótimo: 1; max(viz)-v
+      = 0.00e+00); busca steepest refeita chega à mesma tabela: True; atenção: a variante primeira-melhora
+      acha outro ótimo local (141.308123 > 141.292401), então ''141,29'' é ótimo LOCAL dependente da regra
+      de b'
 - id: C52
   enunciado: 'Teto não executável ''rodada perfeita com preços'' (claims.yaml › colas › rodada_perfeita),
     valor esperado exato por tabela: preços 0 (maximiza só os pontos da rodada) 138,5362; preços = C10–C14
@@ -1127,9 +1285,26 @@ claims:
   valor: 80431125476377690087157954438535103996685942420720287124021715833676228282900617829107192953423925/550963245100840367440574348286773594882410009608097992456078866636644004964137500562735763554304
   valor_num: 145.982742390841
   derivacao: modelo.md#c52
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: rodada ótima por E[pts - preço] (DP de 3 lançamentos com valor futuro aditivo) + Bellman de
+      avaliação no jogo completo + MC literal 1e6 (preços C10-C14 exatos)
+    n: 1000000
+    estimativa: zeros 138.5362; C10-C14 exatos 145.9827; C10-C14 arredondados 145.9388; 2face_8_2 145.5578;
+      marginais da cartela cheia 145.8249; ajuste C53 (exato) 146.3444; ajuste C53 (0,01) 146.3452; MC
+      146.0194
+    ic: '[145.939; 146.1]'
+    nota: 'todos < C17 = 146.7284; |exato - afirmado| = 8.53e-14; observação: com os preços do ajuste
+      SEM arredondar o valor é 146.3444 (146,3452 só vale com os preços arredondados a 0,01 listados em
+      C53)'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: 'rodada ótima por E[pts - preço] (DP de 3 lançamentos com valor futuro aditivo) + Bellman de
+      avaliação no jogo completo + MC literal 1e6 (preços C10-C14 exatos) | todos < C17 = 146.7284; |exato
+      - afirmado| = 8.53e-14; observação: com os preços do ajuste SEM arredondar o valor é 146.3444 (146,3452
+      só vale com os preços arredondados a 0,01 listados em C53)'
 - id: C53
   enunciado: 'Ajuste aditivo por mínimos quadrados (pesos iguais nas 1023 cartelas não vazias) E*(S) ≈
     c_|S| + Σ_{b∈S} p_b (10 constantes c_n + 10 preços; os preços valem a menos de uma constante, normalizados
@@ -1139,9 +1314,20 @@ claims:
   valor: '1.66285368752'
   valor_num: 1.66285368751834
   derivacao: modelo.md#c53
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: mínimos quadrados (lstsq mínima norma, normalizado Ás=0) + conferência por equações normais
+      com p_Ás=0
+    n: 1023
+    estimativa: preços 0.00, 1.81, 3.88, 6.15, 8.56, 11.02, 8.53, 9.74, 19.98, 2.35; RMS 1.662854
+    ic: exato (float64)
+    nota: 'equações normais: RMS 1.662854, máx|dp| = 2.3e-13'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: 'mínimos quadrados (lstsq mínima norma, normalizado Ás=0) + conferência por equações normais
+      com p_Ás=0 | equações normais: RMS 1.662854, máx|dp| = 2.3e-13'
 - id: C54
   enunciado: 'Iteração de política (claims.yaml › colas › iteracao_politica) a partir da gulosa: pi_0
     120,665037 (máx_S [E*(S) − E^pi(S)] = 28.9; cartelas com E^pi = E*: 1); pi_1 142,436816 (máx_S [E*(S)
@@ -1155,9 +1341,22 @@ claims:
   valor: 10045113628741402565674701658775691388295557676976423879486061526132659459147560976535863600353931445/70523295372907567032393516580707020144948481229836543034378094929490432635409600072030177734950912
   valor_num: 142.436815744721
   derivacao: modelo.md#c54
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: iteração de política refeita (round_dec com continuação V^pi_k + Bellman de avaliação), 5
+      passos
+    n: null
+    estimativa: pi_0 120.665037 (gap máx 28.86, = E* em 1); pi_1 142.436816 (gap máx 7.293, = E* em 20);
+      pi_2 146.086695 (gap máx 1.486, = E* em 121); pi_3 146.700005 (gap máx 0.09469, = E* em 443); pi_4
+      146.728291 (gap máx 0.00109, = E* em 872); pi_5 146.728381 (gap máx 1.421e-14, = E* em 1023)
+    ic: exato (float64, tol 1e-9)
+    nota: pi_5 == E* nas 1023 cartelas (máx|dif| 1.4e-14)
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: iteração de política refeita (round_dec com continuação V^pi_k + Bellman de avaliação), 5 passos
+      | pi_5 == E* nas 1023 cartelas (máx|dif| 1.4e-14)
 - id: C55
   enunciado: 'Curva complexidade × pontos: 38 colas (claims.yaml › colas; id, itens de cola, nº de regras,
     valor esperado exato): gulosa [itens 0, regras 0] 120,6650; gulosa+risca_gen [itens 1, regras 1] 120,0014;
@@ -1191,9 +1390,29 @@ claims:
   valor: '38'
   valor_num: 38.0
   derivacao: modelo.md#c55
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: as 38 colas avaliadas exatamente (Bellman de avaliação) + itens/regras recalculados da definição
+      + fronteiras de Pareto refeitas + MC literal 1e6 em 20 colas
+    n: 1000000
+    estimativa: 38 colas distintas; máx|valor - afirmado| = 4.93e-05; fronteira por itens 11 colas, por
+      regras 6 colas
+    ic: 'MC dentro do IC 20/20: gulosa+risca_gen 120.00; 2face_comb0 116.79; gulosa+alvo 123.48; gulosa+seg4x+quad_gen
+      130.20; 2face_8_2+alvo 133.68; num0_8_2 120.06; 3face_78112 118.53; gulosa+seg4x+quad_gen+alvo+risca_gen
+      134.06; 2face_8_2+seg4x+alvo 138.08; 2face_8_2+seg4x+quad_gen+alvo 139.97; face_comb0+seg4x+quad_gen+alvo+doispar
+      136.31; 2face_78112+seg4x+quad_gen+alvo+doispar 141.16; sozinha_prelim+seg4x+quad_gen+alvo+doispar
+      141.24; busca_local+seg4x+quad_gen+alvo+doispar 141.22; 2face_8_2+seg4x+quad_gen+alvo+doispar 141.08;
+      sozinha_int+seg4x+quad_gen+alvo+doispar 141.17; 2face_8_2+seg4x+quad_gen+alvo+doispar+fu_alto 140.60;
+      sozinha_int+seg4x+quad_gen+alvo+doispar+fu_alto 140.66; gulosa+seg4x+quad_gen+alvo+risca_gen+doispar+fu_alto
+      134.64; gulosa+seg4x+quad_gen+alvo+risca_gen+doispar 135.15'
+    nota: 'fronteiras == afirmadas: itens True, regras True'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: 'as 38 colas avaliadas exatamente (Bellman de avaliação) + itens/regras recalculados da definição
+      + fronteiras de Pareto refeitas + MC literal 1e6 em 20 colas | fronteiras == afirmadas: itens True,
+      regras True'
 - id: C56
   enunciado: 'Distribuição da pontuação final separada por ''General feito'' (General marcado com pontos
     > 0). Política ótima (H6): feito com prob. 0,274993, média 182,4807 (valor), moda 197, dp 23,5180;
@@ -1205,9 +1424,23 @@ claims:
   valor: '182.480651335'
   valor_num: 182.480651335306
   derivacao: modelo.md#c56
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: fluxo exato de probabilidade com indicador 'General feito' + MC literal 1e6 (ótima e gulosa)
+      com qui-quadrado conjunto
+    n: 1000000
+    estimativa: 'opt: feito P=0.274993 média 182.4807 moda 197 dp 23.5180; não feito P=0.725007 média
+      133.1677 moda 146 dp 22.1491; chi2 conjunto p=0.789; mistura vs C20/C32 6.9e-18 | gul: feito P=0.298316
+      média 156.8562 moda 150 dp 21.6172; não feito P=0.701684 média 105.2786 moda 100 dp 22.4198; chi2
+      conjunto p=0.127; mistura vs C20/C32 3.5e-18'
+    ic: opt P(feito) MC 0.2753 [0.2742; 0.2765]; gul P(feito) MC 0.2982 [0.2970; 0.2994]
+    nota: 'distância entre componentes: ótima 49.31, gulosa 51.58'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: 'fluxo exato de probabilidade com indicador ''General feito'' + MC literal 1e6 (ótima e gulosa)
+      com qui-quadrado conjunto | distância entre componentes: ótima 49.31, gulosa 51.58'
 - id: C57
   enunciado: 'Ordem de preenchimento: P(casa b preenchida — marcada ou riscada — na rodada t), t = 1..10.
     Rodada média de preenchimento de cada casa. Ótima (H6): Ás 5,1130; Duque 5,1897; Terno 5,4155; Quadra
@@ -1222,9 +1455,26 @@ claims:
   valor: 97122345147571089893341049345680408762034766716080964321083984375/132042183698421549928488228267584583901759734741255846234924515328
   valor_num: 0.735540282864408
   derivacao: modelo.md#c57
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: fluxo exato (visitação por cartela) + MC literal 1e6 (ótima, gulosa, cola ii) registrando
+      a rodada de preenchimento
+    n: 1000000
+    estimativa: 'opt: 5.1130, 5.1897, 5.4155, 5.2766, 5.5548, 5.5918, 4.4424, 6.4937, 4.4129, 7.5097;
+      gul: 6.5945, 5.8752, 5.2428, 4.6822, 4.1576, 3.5803, 4.1474, 8.0612, 3.8795, 8.7794; cola: 4.3987,
+      5.6124, 6.0168, 5.9949, 5.9810, 5.8273, 4.4555, 5.1806, 4.9900, 6.5429; P(General 10ª) ótima 0.234792,
+      gulosa 0.735540, cola 0.055646; P(Seguida 1ª) 0.065158, 0.032092, 0.154607'
+    ic: 'MC dentro do IC99 em 36/36 verificações: opt: P(Gen na 10ª) MC 0.2345 [0.2335; 0.2356], P(Seg
+      na 1ª) MC 0.0650 [0.0644; 0.0656] | gul: P(Gen na 10ª) MC 0.7356 [0.7345; 0.7367], P(Seg na 1ª)
+      MC 0.0320 [0.0316; 0.0325] | cola: P(Gen na 10ª) MC 0.0560 [0.0554; 0.0566], P(Seg na 1ª) MC 0.1544
+      [0.1535; 0.1554]'
+    nota: ''
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: 'fluxo exato (visitação por cartela) + MC literal 1e6 (ótima, gulosa, cola ii) registrando a
+      rodada de preenchimento | '
 - id: C58
   enunciado: 'Preço marginal de cada casa ao longo da partida sob a política ótima (H6): preço_b(t) =
     E[E*(S_t) − E*(S_t sem b) | b livre], S_t = casas livres no início da rodada t, E* = valor ótimo da
@@ -1238,9 +1488,22 @@ claims:
   valor: 468305997501403171252284507706536921849009855446357590839286807514119648060337906192745024108687995/13223117882420168818573784358882566277177840230594351818945892799279456119139300013505658325303296
   valor_num: 35.4157016269215
   derivacao: modelo.md#c58
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: preço marginal = E[V*(S_t) - V*(S_t sem b) | b livre] com a distribuição de S_t por fluxo
+      exato + MC literal 1e6 (S_t amostrado)
+    n: 1000000
+    estimativa: 'r1: 9.4604, 11.3601, 13.5537, 15.9518, 18.4901, 21.0531, 20.0442, 22.4254, 35.4157, 15.1538;
+      r5: 8.3522, 10.1469, 12.3399, 14.6730, 17.1989, 19.7529, 17.4859, 19.0926, 30.0158, 10.8958; r10
+      == C10-C14 (máx|dif| 0.0e+00)'
+    ic: MC dentro do IC99 em 20/20 (rodadas 5 e 10)
+    nota: 'maior preço na rodada 1: casa Quadrada 35.415702'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: 'preço marginal = E[V*(S_t) - V*(S_t sem b) | b livre] com a distribuição de S_t por fluxo exato
+      + MC literal 1e6 (S_t amostrado) | maior preço na rodada 1: casa Quadrada 35.415702'
 - id: C59
   enunciado: 'Formulação: o MDP do Bozó tem 12292056 pares (estado de decisão, ação) (valor): marcar uma
     casa livre em qualquer lançamento (3 × 252 × Σ_S |S| = 3870720) + guardar um submulticonjunto próprio
@@ -1253,9 +1516,24 @@ claims:
   valor: '12292056'
   valor_num: 12292056.0
   derivacao: modelo.md#c59
-  status: derivada
-  validacao: null
-  historico: []
+  status: validada
+  validacao:
+    metodo: contagem por enumeração (sub-multiconjuntos de cada mão) + contagem direta das ações finitas
+      da minha DP + Bellman de avaliação da gulosa e da ótima + alcançabilidade (visitação por fluxo)
+    n: null
+    estimativa: 12292056 pares = 3870720 (marcar) + 8421336 (guardar; 4116 sub-multiconjuntos de 0-4 dados
+      nas 252 mãos, média 16.3333); contagem direta 12292056; Bellman gulosa 120.6650374608; máx|Bellman(ótima)
+      - E*| = 1.4e-14
+    ic: exato
+    nota: 'menor prob. de alcançar uma cartela não vazia: ótima 4.215e-04, gulosa 2.077e-06, cola(ii)
+      1.070e-04'
+  historico:
+  - data: '2026-10-03'
+    de: derivada
+    para: validada
+    nota: 'contagem por enumeração (sub-multiconjuntos de cada mão) + contagem direta das ações finitas
+      da minha DP + Bellman de avaliação da gulosa e da ótima + alcançabilidade (visitação por fluxo)
+      | menor prob. de alcançar uma cartela não vazia: ótima 4.215e-04, gulosa 2.077e-06, cola(ii) 1.070e-04'
 arquivadas:
 - id: C36
   enunciado: 'Bozó reduzido com só 3 casas — Sena, Seguida e General (3 rodadas, mesmas regras H2–H5):
